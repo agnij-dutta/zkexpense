@@ -21,7 +21,10 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       // Template literals of numbers and bigints are everywhere in TOML/hex formatting and are safe.
-      "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true, allow: [{ from: "lib", name: "bigint" }] }],
+      "@typescript-eslint/restrict-template-expressions": [
+        "error",
+        { allowNumber: true, allow: [{ from: "lib", name: "bigint" }] },
+      ],
       eqeqeq: ["error", "always"],
     },
   },

@@ -216,9 +216,7 @@ contract ExpenseAttestationTest is Test {
 
     function test_submit_revertsOnReplay() public {
         registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
-        vm.expectRevert(
-            abi.encodeWithSelector(ExpenseAttestation.PeriodNotContiguous.selector, SEP_END + 1, SEP_START)
-        );
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.PeriodNotContiguous.selector, SEP_END + 1, SEP_START));
         registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 

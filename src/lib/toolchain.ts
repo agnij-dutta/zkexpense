@@ -93,7 +93,10 @@ export function execute(pkg: string, toml: string, name: string): Witness {
   } finally {
     rmSync(inputs, { force: true });
   }
-  return { witness, ms: now() - t0, discard: () => {
+  return {
+    witness,
+    ms: now() - t0,
+    discard: () => {
       rmSync(witness, { force: true });
     },
   };
@@ -138,7 +141,9 @@ export function prove(pkg: string, witness: string, target: VerifierTarget, outD
  */
 export function verifyNative(vkPath: string, proofPath: string, piPath: string, target: VerifierTarget = "evm") {
   const t0 = now();
-  const r = spawnSync("bb", ["verify", "-k", vkPath, "-p", proofPath, "-i", piPath, "-t", target], { encoding: "utf8" });
+  const r = spawnSync("bb", ["verify", "-k", vkPath, "-p", proofPath, "-i", piPath, "-t", target], {
+    encoding: "utf8",
+  });
   if (r.error) throw new Error(`could not run bb: ${r.error.message}`, { cause: r.error });
   return { ok: r.status === 0, ms: now() - t0 };
 }

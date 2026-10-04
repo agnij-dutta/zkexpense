@@ -15,7 +15,8 @@ import { ROOT, buildAggregate, buildBatch, ensureVk, ingestLog, ingestVendors } 
 
 const A = (n) => "0x" + n.toString(16).padStart(40, "0");
 const T = (n) => "0x" + n.toString(16).padStart(64, "0");
-const fields = (buf) => Array.from({ length: buf.length / 32 }, (_, i) => "0x" + buf.subarray(i * 32, i * 32 + 32).toString("hex"));
+const fields = (buf) =>
+  Array.from({ length: buf.length / 32 }, (_, i) => "0x" + buf.subarray(i * 32, i * 32 + 32).toString("hex"));
 const sh = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, stdio: ["ignore", "pipe", "pipe"] }).toString();
 
 test("aggregator rejects inner proofs of a substituted circuit", { timeout: 900_000 }, () => {
@@ -34,7 +35,10 @@ test("aggregator rejects inner proofs of a substituted circuit", { timeout: 900_
     writeFileSync(libPath, lib.replace(check, "// vendor check removed"));
     cpSync(join(dir, "batch_64"), join(dir, "evil_64"), { recursive: true });
     const toml = readFileSync(join(dir, "evil_64", "Nargo.toml"), "utf8");
-    writeFileSync(join(dir, "evil_64", "Nargo.toml"), toml.replace('"batch_64"', '"evil_64"').replace("../lib", "../lib_evil"));
+    writeFileSync(
+      join(dir, "evil_64", "Nargo.toml"),
+      toml.replace('"batch_64"', '"evil_64"').replace("../lib", "../lib_evil"),
+    );
 
     sh("nargo", ["compile", "--silence-warnings"], join(dir, "evil_64"));
     sh("nargo", ["compile", "--silence-warnings"], join(dir, "agg_64x2"));
@@ -67,18 +71,54 @@ test("aggregator rejects inner proofs of a substituted circuit", { timeout: 900_
       const slice = log.payments.slice(i * 64, (i + 1) * 64);
       const start = i === 0 ? periodStart : boundaries[0];
       const blind = 100n + BigInt(i);
-      const b = buildBatch(log, vendors, { ...policyBase, periodStart: start, periodEnd: boundaries[i], chainIn, blind }, slice);
+      const b = buildBatch(
+        log,
+        vendors,
+        { ...policyBase, periodStart: start, periodEnd: boundaries[i], chainIn, blind },
+        slice,
+      );
       writeFileSync(join(dir, "evil_64", `w${i}.toml`), b.toml);
       sh("nargo", ["execute", "--silence-warnings", "-p", `w${i}`, `w${i}`], join(dir, "evil_64"));
       const out = join(dir, `inner${i}`);
-      sh("bb", ["prove", "-b", evilJson, "-w", join(dir, "evil_64", "target", `w${i}.gz`), "-k", join(evilVkDir, "vk"), "-o", out, "-t", "noir-recursive-no-zk"]);
+      sh("bb", [
+        "prove",
+        "-b",
+        evilJson,
+        "-w",
+        join(dir, "evil_64", "target", `w${i}.gz`),
+        "-k",
+        join(evilVkDir, "vk"),
+        "-o",
+        out,
+        "-t",
+        "noir-recursive-no-zk",
+      ]);
       inners.push({ proofFields: fields(readFileSync(join(out, "proof"))), report: b.report, total: b.total, blind });
       chainIn = b.report.chainOut;
     }
-    const verifyInner = spawnSync("bb", ["verify", "-k", join(evilVkDir, "vk"), "-p", join(dir, "inner1", "proof"), "-i", join(dir, "inner1", "public_inputs"), "-t", "noir-recursive-no-zk"]);
+    const verifyInner = spawnSync("bb", [
+      "verify",
+      "-k",
+      join(evilVkDir, "vk"),
+      "-p",
+      join(dir, "inner1", "proof"),
+      "-i",
+      join(dir, "inner1", "public_inputs"),
+      "-t",
+      "noir-recursive-no-zk",
+    ]);
     assert.equal(verifyInner.status, 0, "sanity: the evil circuit proves a batch with an unapproved vendor");
 
-    const policy = { payer: log.payer, asset: log.asset, chainId: log.chainId, periodStart, periodEnd, budget: 10n ** 9n, discloseTotal: false, chainIn: 0n };
+    const policy = {
+      payer: log.payer,
+      asset: log.asset,
+      chainId: log.chainId,
+      periodStart,
+      periodEnd,
+      budget: 10n ** 9n,
+      discloseTotal: false,
+      chainIn: 0n,
+    };
     const evilVk = fields(readFileSync(join(evilVkDir, "vk")));
     const agg = buildAggregate(policy, evilVk, pinned, inners, boundaries, 77n);
     writeFileSync(join(dir, "agg_64x2", "attack.toml"), agg.toml);
@@ -88,9 +128,31 @@ test("aggregator rejects inner proofs of a substituted circuit", { timeout: 900_
     sh("bb", ["write_vk", "-b", aggJson, "-o", aggVk, "-t", "evm"]);
     const out = join(dir, "agg_out");
     // bb may refuse to prove, or prove something that does not verify; both mean the attack failed.
-    const proved = spawnSync("bb", ["prove", "-b", aggJson, "-w", join(dir, "agg_64x2", "target", "attack.gz"), "-k", join(aggVk, "vk"), "-o", out, "-t", "evm"]);
+    const proved = spawnSync("bb", [
+      "prove",
+      "-b",
+      aggJson,
+      "-w",
+      join(dir, "agg_64x2", "target", "attack.gz"),
+      "-k",
+      join(aggVk, "vk"),
+      "-o",
+      out,
+      "-t",
+      "evm",
+    ]);
     if (proved.status === 0) {
-      const v = spawnSync("bb", ["verify", "-k", join(aggVk, "vk"), "-p", join(out, "proof"), "-i", join(out, "public_inputs"), "-t", "evm"]);
+      const v = spawnSync("bb", [
+        "verify",
+        "-k",
+        join(aggVk, "vk"),
+        "-p",
+        join(out, "proof"),
+        "-i",
+        join(out, "public_inputs"),
+        "-t",
+        "evm",
+      ]);
       assert.notEqual(v.status, 0, "an aggregate over a substituted inner circuit must not verify");
     }
   } finally {

@@ -151,7 +151,9 @@ export function ingestVendors(raw: unknown): VendorSet {
   for (const a of addrs) if (!isAddr(a)) throw new Error(`bad vendor address ${String(a)}`);
   const salt = isObject(raw) && !Array.isArray(raw) ? raw.salt : undefined;
   if (typeof salt !== "string" || !/^0x[0-9a-fA-F]+$/.test(salt)) {
-    throw new Error("vendors file needs a hex 'salt' so the published vendor root is stable and cannot be brute-forced");
+    throw new Error(
+      "vendors file needs a hex 'salt' so the published vendor root is stable and cannot be brute-forced",
+    );
   }
   return { addrs: [...new Set((addrs as string[]).map((a) => a.toLowerCase()))], salt: BigInt(salt) };
 }
@@ -167,7 +169,9 @@ export const commitTotal = (total: bigint, blind: bigint): bigint => hash([total
 
 /** Salted Poseidon2 Merkle root over the V-slot vendor table (empty slots are 0). */
 export function vendorRoot({ addrs, salt }: VendorSet): bigint {
-  const leaves = Array.from({ length: V }, (_, i) => (i < addrs.length ? hash([BigInt(addrs[i]), salt, DOMAIN.vendorLeaf]) : 0n));
+  const leaves = Array.from({ length: V }, (_, i) =>
+    i < addrs.length ? hash([BigInt(addrs[i]), salt, DOMAIN.vendorLeaf]) : 0n,
+  );
   return merkleRoot(leaves);
 }
 

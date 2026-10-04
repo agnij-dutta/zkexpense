@@ -18,8 +18,14 @@ const A = (n) => "0x" + n.toString(16).padStart(40, "0");
 const T = (n) => "0x" + n.toString(16).padStart(64, "0");
 const USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
 const row = (i, over = {}) => ({
-  transaction: T(1000 + i), payer: A(1), payTo: A(0xa0 + (i % 2)), amount: String(1000 * (i + 1)),
-  asset: USDC, network: "base", timestamp: 1_788_220_800 + 3600 * (10 - i), ...over,
+  transaction: T(1000 + i),
+  payer: A(1),
+  payTo: A(0xa0 + (i % 2)),
+  amount: String(1000 * (i + 1)),
+  asset: USDC,
+  network: "base",
+  timestamp: 1_788_220_800 + 3600 * (10 - i),
+  ...over,
 });
 
 test("amount parsing: atomic, decimal, dollar", () => {
@@ -40,7 +46,10 @@ test("networks: x402 names and CAIP-2", () => {
 test("ingest sorts by settlement time and normalizes", () => {
   const log = ingestLog({ agentId: "a", payments: [row(0), row(1), row(2)] });
   assert.equal(log.chainId, 8453);
-  assert.deepEqual(log.payments.map((p) => p.timestamp), [...log.payments.map((p) => p.timestamp)].sort((a, b) => a - b));
+  assert.deepEqual(
+    log.payments.map((p) => p.timestamp),
+    [...log.payments.map((p) => p.timestamp)].sort((a, b) => a - b),
+  );
 });
 
 test("ingest rejects duplicate settlement tx, mixed payer / asset / chain", () => {
@@ -61,7 +70,14 @@ test("vendors file needs a salt", () => {
 test("witness builder flags policy violations before proving", () => {
   const log = ingestLog([row(0), row(1), row(2, { payTo: A(0xdead) })]);
   const vendors = ingestVendors({ salt: "0x01", vendors: [A(0xa0), A(0xa1)] });
-  const opts = { N: 64, budget: 10n ** 9n, periodStart: 1_788_220_800, periodEnd: 1_788_220_800 + 86400, discloseTotal: false, secret: 1n };
+  const opts = {
+    N: 64,
+    budget: 10n ** 9n,
+    periodStart: 1_788_220_800,
+    periodEnd: 1_788_220_800 + 86400,
+    discloseTotal: false,
+    secret: 1n,
+  };
   const b = buildBatch(log, vendors, opts);
   assert.equal(b.problems.length, 1);
   assert.match(b.problems[0], /not an approved vendor/);
@@ -72,7 +88,14 @@ test("witness builder flags policy violations before proving", () => {
 test("public inputs round-trip through the decoder", () => {
   const log = ingestLog([row(0), row(1)]);
   const vendors = ingestVendors({ salt: "0x01", vendors: [A(0xa0), A(0xa1)] });
-  const b = buildBatch(log, vendors, { N: 64, budget: 2500n, periodStart: 1_788_220_800, periodEnd: 1_790_812_799, discloseTotal: true, secret: 1n });
+  const b = buildBatch(log, vendors, {
+    N: 64,
+    budget: 2500n,
+    periodStart: 1_788_220_800,
+    periodEnd: 1_790_812_799,
+    discloseTotal: true,
+    secret: 1n,
+  });
   const d = decodePublicInputs(expectedPublicInputs(b.policy, b.report));
   assert.equal(d.count, 2);
   assert.equal(d.disclosedTotal, 3000n);
@@ -94,19 +117,39 @@ test("circuit selection", () => {
 
 test("raw x402 requirement/settlement pairs are accepted", () => {
   const r = row(0);
-  const log = ingestLog([{
-    paymentRequirements: { scheme: "exact", network: "base", maxAmountRequired: r.amount, payTo: r.payTo, asset: r.asset, resource: "https://x" },
-    settleResponse: { success: true, transaction: r.transaction, network: "base", payer: r.payer },
-    timestamp: r.timestamp,
-  }]);
+  const log = ingestLog([
+    {
+      paymentRequirements: {
+        scheme: "exact",
+        network: "base",
+        maxAmountRequired: r.amount,
+        payTo: r.payTo,
+        asset: r.asset,
+        resource: "https://x",
+      },
+      settleResponse: { success: true, transaction: r.transaction, network: "base", payer: r.payer },
+      timestamp: r.timestamp,
+    },
+  ]);
   assert.equal(log.payments[0].amount, 1000n);
-  assert.throws(() => ingestLog([{ paymentRequirements: {}, settleResponse: { success: false, errorReason: "insufficient_funds" } }]), /unsettled/);
+  assert.throws(
+    () =>
+      ingestLog([{ paymentRequirements: {}, settleResponse: { success: false, errorReason: "insufficient_funds" } }]),
+    /unsettled/,
+  );
 });
 
 test("witness builder flags out-of-order or repeated payments in a hand-built slice", () => {
   const log = ingestLog([row(0), row(1), row(2)]);
   const vendors = ingestVendors({ salt: "0x01", vendors: [A(0xa0), A(0xa1)] });
-  const opts = { N: 64, budget: 10n ** 9n, periodStart: 1_788_220_800, periodEnd: 1_788_220_800 + 86400, discloseTotal: false, secret: 1n };
+  const opts = {
+    N: 64,
+    budget: 10n ** 9n,
+    periodStart: 1_788_220_800,
+    periodEnd: 1_788_220_800 + 86400,
+    discloseTotal: false,
+    secret: 1n,
+  };
   const [a, b] = log.payments;
   assert.equal(buildBatch(log, vendors, opts, [a, b]).problems.length, 0);
   assert.match(buildBatch(log, vendors, opts, [b, a]).problems[0], /strictly after/);

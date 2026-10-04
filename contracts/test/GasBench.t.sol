@@ -49,7 +49,18 @@ contract GasBench is Test {
         for (uint256 i; i < data.length; ++i) {
             cd += data[i] == 0 ? 4 : 16;
         }
-        console2.log(string.concat("GAS ", id, " verify=", vm.toString(verifyGas), " submit=", vm.toString(submitGas), " calldata=", vm.toString(cd)));
+        console2.log(
+            string.concat(
+                "GAS ",
+                id,
+                " verify=",
+                vm.toString(verifyGas),
+                " submit=",
+                vm.toString(submitGas),
+                " calldata=",
+                vm.toString(cd)
+            )
+        );
     }
 
     function test_gas_all() public {

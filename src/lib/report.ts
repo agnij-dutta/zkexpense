@@ -6,7 +6,16 @@ import { pickCircuit } from "./circuits.js";
 import { hash } from "./hash.js";
 import { totalBlind } from "./model.js";
 import { ensureVk, execute, prove, toFields, verifyNative, type ProveResult } from "./toolchain.js";
-import type { CircuitSpec, DecodedReportJson, PaymentLog, Policy, ProofJson, ProofTimings, Report, VendorSet } from "./types.js";
+import type {
+  CircuitSpec,
+  DecodedReportJson,
+  PaymentLog,
+  Policy,
+  ProofJson,
+  ProofTimings,
+  Report,
+  VendorSet,
+} from "./types.js";
 import {
   buildAggregate,
   buildBatch,
@@ -66,7 +75,13 @@ function proveAndCheck(pkg: string, witness: string): ProveResult {
   }
 }
 
-function proveSingle(spec: CircuitSpec, log: PaymentLog, vendors: VendorSet, base: BatchOptions, timings: ProofTimings) {
+function proveSingle(
+  spec: CircuitSpec,
+  log: PaymentLog,
+  vendors: VendorSet,
+  base: BatchOptions,
+  timings: ProofTimings,
+) {
   const batch = buildBatch(log, vendors, base);
   if (batch.problems.length) throw new PolicyViolation(batch.problems);
   const witness = execute(spec.name, batch.toml, "zkexpense");

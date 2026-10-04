@@ -191,7 +191,9 @@ contract ExpenseAttestation is Ownable2Step, Pausable {
         bytes calldata proof,
         bytes32[] calldata publicInputs
     ) external whenNotPaused returns (uint256 index) {
-        if (publicInputs.length != NUM_PUBLIC_INPUTS) revert BadPublicInputsLength(publicInputs.length);
+        if (publicInputs.length != NUM_PUBLIC_INPUTS) {
+            revert BadPublicInputsLength(publicInputs.length);
+        }
         IHonkVerifier verifier = verifiers[circuitId];
         if (address(verifier) == address(0)) revert UnknownCircuit(circuitId);
         Mandate storage m = _mandates[principal][agentId];
@@ -281,11 +283,7 @@ contract ExpenseAttestation is Ownable2Step, Pausable {
     /// @param agentId Agent identifier
     /// @param index Report sequence number
     /// @return The stored attestation (all zero if none)
-    function attestation(address principal, bytes32 agentId, uint256 index)
-        external
-        view
-        returns (Attestation memory)
-    {
+    function attestation(address principal, bytes32 agentId, uint256 index) external view returns (Attestation memory) {
         return _attestations[principal][agentId][index];
     }
 

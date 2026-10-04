@@ -158,9 +158,7 @@ function cmdProve({ pos, flags }: Args): void {
   );
   console.log(`  log root      ${r.logRoot}`);
   console.log(`  vendor root   ${r.vendorRoot}`);
-  console.log(
-    `  proof         ${pj.meta.proofBytes} bytes, proved in ${(pj.meta.timings.proveMs / 1000).toFixed(2)}s`,
-  );
+  console.log(`  proof         ${pj.meta.proofBytes} bytes, proved in ${(pj.meta.timings.proveMs / 1000).toFixed(2)}s`);
   if (!r.underBudget) process.exitCode = EXIT.overBudget;
 }
 

@@ -6,11 +6,19 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cpus, totalmem, loadavg } from "node:os";
-import { ROOT, ensureCompiled, generateSample, ingestLog, ingestVendors, proveReport, verifyProofJson } from "../dist/index.js";
+import {
+  ROOT,
+  ensureCompiled,
+  generateSample,
+  ingestLog,
+  ingestVendors,
+  proveReport,
+  verifyProofJson,
+} from "../dist/index.js";
 
 const arg = (k, d) => {
   const i = process.argv.indexOf(`--${k}`);
-  return i < 0 ? d : process.argv[i + 1] ?? true;
+  return i < 0 ? d : (process.argv[i + 1] ?? true);
 };
 const RUNS = Number(arg("runs", 3));
 const only = arg("only", null)?.split(",");
@@ -21,7 +29,9 @@ const CASES = [
   { id: "n512", circuit: "batch_512", payments: 512 },
   { id: "n1024", circuit: "batch_1024", payments: 1024 },
   { id: "n4096", circuit: "agg_1024x4", payments: 4096, runs: 1 },
-].filter((c) => (!only || only.includes(c.id)) && !(process.argv.includes("--skip-agg") && c.circuit.startsWith("agg")));
+].filter(
+  (c) => (!only || only.includes(c.id)) && !(process.argv.includes("--skip-agg") && c.circuit.startsWith("agg")),
+);
 
 const loadAvgAtStart = loadavg().map((x) => +x.toFixed(1));
 const startedAt = new Date().toISOString();
@@ -30,7 +40,9 @@ mkdirSync(FIX, { recursive: true });
 mkdirSync(join(ROOT, "bench"), { recursive: true });
 
 const gates = (pkg) => {
-  const out = execFileSync("bb", ["gates", "-b", ensureCompiled(pkg)], { stdio: ["ignore", "pipe", "ignore"] }).toString();
+  const out = execFileSync("bb", ["gates", "-b", ensureCompiled(pkg)], {
+    stdio: ["ignore", "pipe", "ignore"],
+  }).toString();
   return Number(out.match(/"circuit_size":\s*(\d+)/)[1]);
 };
 
@@ -45,8 +57,12 @@ for (const c of CASES) {
   const log = ingestLog(sample.log);
   const vendors = ingestVendors(sample.vendors);
   const opts = {
-    budget: 500_000_000n, periodStart: Date.UTC(2026, 8, 1) / 1000, periodEnd: Date.UTC(2026, 9, 1) / 1000 - 1,
-    discloseTotal: false, secret: 0xbe9cn, circuit: c.circuit,
+    budget: 500_000_000n,
+    periodStart: Date.UTC(2026, 8, 1) / 1000,
+    periodEnd: Date.UTC(2026, 9, 1) / 1000 - 1,
+    discloseTotal: false,
+    secret: 0xbe9cn,
+    circuit: c.circuit,
   };
   const runs = c.runs ?? RUNS;
   const all = [];
@@ -81,13 +97,17 @@ for (const c of CASES) {
 }
 
 // On-chain gas: real proofs through the bb-generated Solidity verifiers (forge test).
-const forge = execFileSync("forge", ["test", "--match-contract", "GasBench", "-vv"], { cwd: join(ROOT, "contracts") }).toString();
+const forge = execFileSync("forge", ["test", "--match-contract", "GasBench", "-vv"], {
+  cwd: join(ROOT, "contracts"),
+}).toString();
 for (const m of forge.matchAll(/GAS (\w+) verify=(\d+) submit=(\d+) calldata=(\d+)/g)) {
   if (results[m[1]]) Object.assign(results[m[1]], { verifyGas: +m[2], submitReportGas: +m[3], calldataGas: +m[4] });
 }
 
 const env = {
-  cpu: cpus()[0].model, cores: cpus().length, memGb: Math.round(totalmem() / 2 ** 30),
+  cpu: cpus()[0].model,
+  cores: cpus().length,
+  memGb: Math.round(totalmem() / 2 ** 30),
   loadAvgAtStart,
   loadAvgAtEnd: loadavg().map((x) => +x.toFixed(1)),
   runs: RUNS,

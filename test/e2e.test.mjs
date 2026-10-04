@@ -13,7 +13,19 @@ test("prove -> verify, and tampering is caught", { timeout: 600_000 }, () => {
   const dir = mkdtempSync(join(tmpdir(), "zkexpense-e2e-"));
   try {
     execFileSync(process.execPath, [CLI, "sample", "--count", "40", "--out", dir, "--seed", "3"]);
-    const p = zk(["prove", join(dir, "log-40.json"), "--vendors", join(dir, "vendors.json"), "--budget", "50", "--out", join(dir, "proof.json")], dir);
+    const p = zk(
+      [
+        "prove",
+        join(dir, "log-40.json"),
+        "--vendors",
+        join(dir, "vendors.json"),
+        "--budget",
+        "50",
+        "--out",
+        join(dir, "proof.json"),
+      ],
+      dir,
+    );
     assert.equal(p.status, 0, p.stderr);
     const root = zk(["vendor-root", join(dir, "vendors.json")], dir).stdout.trim();
 

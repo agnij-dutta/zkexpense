@@ -55,7 +55,8 @@ export function checkDisclosure(d: Disclosure, pj?: ProofJson): boolean {
   const pay = d.payment;
   if (pj) {
     if (d.logRoot !== pj.report.logRoot || d.circuit !== pj.circuit) return false;
-    if (pay.payer !== pj.report.payer || pay.asset !== pj.report.asset || pay.chainId !== pj.report.chainId) return false;
+    if (pay.payer !== pj.report.payer || pay.asset !== pj.report.asset || pay.chainId !== pj.report.chainId)
+      return false;
   }
   const leaf = leafHash(
     { payer: pay.payer, asset: pay.asset, chainId: pay.chainId },

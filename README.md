@@ -40,15 +40,15 @@ zkexpense report for agent:research-bot-7 (batch_512)
 
 Other commands:
 
-| command | what it does |
-|---|---|
-| `prove ... --disclose-total` | reveal the exact total instead of only `total <= budget` |
-| `prove ... --prev last-month.json` | chain this report onto the previous period's hash chain |
-| `prove ... --circuit agg_1024x4` | force a circuit (auto-picked by payment count otherwise) |
-| `disclose log.json --proof proof.json --tx 0x..` | open ONE payment (preimage + Merkle path), nothing else |
-| `check-disclosure d.json --proof proof.json` | auditor checks that opening against the proven log root |
-| `vendor-root vendors.json` | the salted root a principal publishes for its approved set |
-| `inspect log.json` | sanity summary of a log |
+| command                                          | what it does                                               |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `prove ... --disclose-total`                     | reveal the exact total instead of only `total <= budget`   |
+| `prove ... --prev last-month.json`               | chain this report onto the previous period's hash chain    |
+| `prove ... --circuit agg_1024x4`                 | force a circuit (auto-picked by payment count otherwise)   |
+| `disclose log.json --proof proof.json --tx 0x..` | open ONE payment (preimage + Merkle path), nothing else    |
+| `check-disclosure d.json --proof proof.json`     | auditor checks that opening against the proven log root    |
+| `vendor-root vendors.json`                       | the salted root a principal publishes for its approved set |
+| `inspect log.json`                               | sanity summary of a log                                    |
 
 A log that violates policy (unapproved vendor, payment outside the period) cannot be proven: the CLI refuses up front (exit 4) and the circuit has no satisfying witness anyway.
 
@@ -57,9 +57,15 @@ A log that violates policy (unapproved vendor, payment outside the period) canno
 A log is a list of x402 payments. Either flat rows:
 
 ```json
-{ "transaction": "0x<32-byte settlement tx hash>", "payer": "0x..", "payTo": "0x..",
-  "amount": "12500", "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-  "network": "base", "timestamp": 1788221000 }
+{
+  "transaction": "0x<32-byte settlement tx hash>",
+  "payer": "0x..",
+  "payTo": "0x..",
+  "amount": "12500",
+  "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "network": "base",
+  "timestamp": 1788221000
+}
 ```
 
 or the raw pair an agent gets from x402, `{ paymentRequirements, settleResponse, timestamp }` (see `examples/x402-raw.json`). `amount` is in atomic units (USDC has 6 decimals), `network` is an x402 name (`base`, `base-sepolia`, `avalanche-fuji`, ...) or CAIP-2 (`eip155:8453`), `timestamp` is the settlement block time. One report covers one payer wallet, one asset and one chain; duplicates by settlement tx are rejected.
@@ -83,16 +89,16 @@ with a per-payment salt derived from the agent's secret (`.zkexpense/secret`). T
 
 ### Public inputs (15 fields, in this order)
 
-| # | name | | # | name |
-|---|---|---|---|---|
-| 0 | payer | | 8 | logRoot |
-| 1 | asset | | 9 | vendorRoot |
-| 2 | chainId | | 10 | count |
-| 3 | periodStart | | 11 | underBudget |
-| 4 | periodEnd | | 12 | disclosedTotal (0 unless disclosed) |
-| 5 | budget | | 13 | totalCommit |
-| 6 | discloseTotal | | 14 | chainOut |
-| 7 | chainIn | | | |
+| #   | name          |     | #   | name                                |
+| --- | ------------- | --- | --- | ----------------------------------- |
+| 0   | payer         |     | 8   | logRoot                             |
+| 1   | asset         |     | 9   | vendorRoot                          |
+| 2   | chainId       |     | 10  | count                               |
+| 3   | periodStart   |     | 11  | underBudget                         |
+| 4   | periodEnd     |     | 12  | disclosedTotal (0 unless disclosed) |
+| 5   | budget        |     | 13  | totalCommit                         |
+| 6   | discloseTotal |     | 14  | chainOut                            |
+| 7   | chainIn       |     |     |                                     |
 
 Revealed: payer wallet, asset, chain, period, budget, number of payments, roots. Hidden: every payee, every amount, every timestamp, every tx hash, the vendor list, and the total (unless disclosed).
 
@@ -128,10 +134,10 @@ npm test     # node unit + e2e (real nargo/bb), nargo circuit tests, forge tests
 
 ## Caveats (read these)
 
-1. **The agent writes its own log.** The proof shows that the payments *in the log* satisfy the policy; it cannot see payments the agent left out. Mitigations, from cheapest to strongest:
-   - *Dedicated payer wallet + count check.* `count` and `payer` are public. The auditor counts USDC transfers out of the payer wallet in the period (public Transfer / EIP-3009 `AuthorizationUsed` events) and compares. An omitted payment shows up as a mismatch.
-   - *Spot-check disclosures.* The auditor picks random on-chain settlement txs from that wallet and asks for `zkexpense disclose`. The agent can only answer for payments that are really leaves of the proven root, and the opening reveals that one payment and nothing else. Swapping an omitted large payment for a fake small one fails as soon as either is sampled.
-   - *On-chain anchoring (the sound fix, TODO).* If payments go through a settlement contract that keeps the same Poseidon2 hash chain on-chain, the attestation contract can require `chainOut` to equal the on-chain head at period end, making omission impossible. The circuit already exposes `chainIn`/`chainOut` and the contract already enforces chain continuity between reports for this purpose. Note the leaf includes the settlement tx hash, which a contract cannot know mid-transaction; an anchored variant would use a per-payer nonce instead.
+1. **The agent writes its own log.** The proof shows that the payments _in the log_ satisfy the policy; it cannot see payments the agent left out. Mitigations, from cheapest to strongest:
+   - _Dedicated payer wallet + count check._ `count` and `payer` are public. The auditor counts USDC transfers out of the payer wallet in the period (public Transfer / EIP-3009 `AuthorizationUsed` events) and compares. An omitted payment shows up as a mismatch.
+   - _Spot-check disclosures._ The auditor picks random on-chain settlement txs from that wallet and asks for `zkexpense disclose`. The agent can only answer for payments that are really leaves of the proven root, and the opening reveals that one payment and nothing else. Swapping an omitted large payment for a fake small one fails as soon as either is sampled.
+   - _On-chain anchoring (the sound fix, TODO)._ If payments go through a settlement contract that keeps the same Poseidon2 hash chain on-chain, the attestation contract can require `chainOut` to equal the on-chain head at period end, making omission impossible. The circuit already exposes `chainIn`/`chainOut` and the contract already enforces chain continuity between reports for this purpose. Note the leaf includes the settlement tx hash, which a contract cannot know mid-transaction; an anchored variant would use a per-payer nonce instead.
 2. **Amounts and payees are as logged.** The same disclosure mechanism lets an auditor check any opened payment against its on-chain transfer.
 3. **The payment count is public.** It is useful for the omission check above; a variant could make it private.
 4. **Toolchain maturity.** bb 4.0.0 is a nightly; the Solidity verifiers are generated and unaudited. UltraHonk uses a KZG SRS (Aztec Ignition), so there is a universal trusted setup.

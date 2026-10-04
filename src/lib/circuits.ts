@@ -33,7 +33,8 @@ export function pickCircuit(payments: number, forced?: string): CircuitSpec {
     return spec;
   }
   const spec =
-    SINGLE_CIRCUITS.find((c) => c.capacity >= payments) ?? AGG_CIRCUITS.find((c) => c.capacity >= payments && c.k === 4);
+    SINGLE_CIRCUITS.find((c) => c.capacity >= payments) ??
+    AGG_CIRCUITS.find((c) => c.capacity >= payments && c.k === 4);
   if (!spec) throw new Error(`${payments} payments exceed the largest supported report (4096); split the period`);
   return spec;
 }

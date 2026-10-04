@@ -66,7 +66,11 @@ export function generateSample({ count, month = "2026-09", seed = 42, rogue = 0 
   let counter = 0n;
   const rand = (): number => createHash("sha256").update(`${seedTag}:${counter++}`).digest().readUInt32BE(0) / 2 ** 32;
   const hex = (bytes: number): string =>
-    "0x" + createHash("sha256").update(`${seedTag}:hex:${counter++}`).digest("hex").slice(0, bytes * 2);
+    "0x" +
+    createHash("sha256")
+      .update(`${seedTag}:hex:${counter++}`)
+      .digest("hex")
+      .slice(0, bytes * 2);
 
   const vendors = VENDOR_PROFILES.map(([name, lo, hi]) => {
     const address = hex(20);

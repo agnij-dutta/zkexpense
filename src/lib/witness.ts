@@ -91,7 +91,10 @@ export function buildBatch(
   slice.forEach((p, i) => {
     const short = p.transaction.slice(0, 12);
     const prev = slice[i - 1] as Payment | undefined;
-    if (prev && !(p.timestamp > prev.timestamp || (p.timestamp === prev.timestamp && p.transaction > prev.transaction))) {
+    if (
+      prev &&
+      !(p.timestamp > prev.timestamp || (p.timestamp === prev.timestamp && p.transaction > prev.transaction))
+    ) {
       problems.push(`tx ${short}.. is not strictly after the previous payment in (timestamp, tx hash) order`);
     }
     const vendorIdx = vendorIndex.get(p.payTo);
