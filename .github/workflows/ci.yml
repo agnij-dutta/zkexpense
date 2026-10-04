@@ -1,0 +1,77 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  NARGO_VERSION: 1.0.0-beta.19
+  BB_VERSION: 4.0.0-nightly.20260120
+
+jobs:
+  typescript:
+    name: lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+  circuits:
+    name: noir tests + fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install nargo
+        run: |
+          curl -L https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
+          "$HOME/.nargo/bin/noirup" -v "$NARGO_VERSION"
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+      - run: cd circuits/lib && nargo fmt --check && nargo test
+      - run: for d in circuits/batch_* circuits/agg_*; do (cd "$d" && nargo fmt --check); done
+
+  contracts:
+    name: forge tests + fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Install Foundry deps
+        working-directory: contracts
+        run: |
+          forge install foundry-rs/forge-std@v1.17.0 --no-git
+          forge install OpenZeppelin/openzeppelin-contracts@v5.1.0 --no-git
+      - working-directory: contracts
+        run: forge fmt --check
+      - working-directory: contracts
+        run: forge test -vv
+
+  end-to-end:
+    name: prove + verify with real nargo/bb, verifier drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Install nargo and bb
+        run: |
+          curl -L https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
+          "$HOME/.nargo/bin/noirup" -v "$NARGO_VERSION"
+          curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install | bash
+          "$HOME/.bb/bbup" -v "$BB_VERSION"
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.bb" >> "$GITHUB_PATH"
+      - run: npm ci && npm run build
+      - name: Rebuild circuits and check the committed Solidity verifiers match
+        run: scripts/build.sh && git diff --exit-code -- contracts/src/verifiers circuits
+      - run: npm run test:ts
+      - run: npm run test:adversarial
