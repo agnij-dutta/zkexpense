@@ -2,7 +2,7 @@
 // Shelling out to the CLIs keeps zkExpense pinned to exactly the versions that generated the
 // verification keys and Solidity verifiers, instead of a JS port that may drift.
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -33,10 +33,30 @@ function run(cmd: string, args: string[], cwd?: string): string {
 const now = (): number => performance.now();
 const pkgDir = (pkg: string): string => join(CIRCUITS_DIR, pkg);
 
-/** Path to the compiled ACIR artifact, compiling the circuit on first use. */
+/** Newest modification time of the Noir sources a package depends on (its own and circuits/lib). */
+function sourcesMtime(pkg: string): number {
+  let newest = 0;
+  for (const dir of [join(pkgDir(pkg), "src"), join(CIRCUITS_DIR, "lib", "src")]) {
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)) newest = Math.max(newest, statSync(join(dir, f)).mtimeMs);
+  }
+  return newest;
+}
+
+/**
+ * Path to the compiled ACIR artifact, compiling on first use or when a Noir source is newer than
+ * the artifact. A stale artifact would prove a different circuit than the one on disk, so the
+ * cached verification keys are dropped along with it.
+ */
 export function ensureCompiled(pkg: string): string {
-  const artifact = join(pkgDir(pkg), "target", `${pkg}.json`);
-  if (!existsSync(artifact)) run("nargo", ["compile", "--silence-warnings"], pkgDir(pkg));
+  const target = join(pkgDir(pkg), "target");
+  const artifact = join(target, `${pkg}.json`);
+  if (!existsSync(artifact) || statSync(artifact).mtimeMs < sourcesMtime(pkg)) {
+    run("nargo", ["compile", "--silence-warnings"], pkgDir(pkg));
+    for (const f of readdirSync(target)) {
+      if (f.startsWith("vk_")) rmSync(join(target, f), { recursive: true, force: true });
+    }
+  }
   return artifact;
 }
 
@@ -48,13 +68,35 @@ export function ensureVk(pkg: string, target: VerifierTarget): { vk: string; vkH
   return { vk: join(dir, "vk"), vkHash: join(dir, "vk_hash") };
 }
 
-/** Write `<name>.toml` into the circuit package and solve the witness with nargo. */
-export function execute(pkg: string, toml: string, name: string): { witness: string; ms: number } {
+export interface Witness {
+  /** Path of the solved witness (`target/<name>.gz`). */
+  witness: string;
+  ms: number;
+  /** Delete the witness file. It holds every private payment, so callers discard it after proving. */
+  discard: () => void;
+}
+
+/**
+ * Solve the witness with nargo. nargo reads inputs from `<package>/<name>.toml`, so the inputs are
+ * written there (mode 0600) and deleted again as soon as nargo is done: they are the private log.
+ * The name carries the process id so concurrent provers do not overwrite each other.
+ */
+export function execute(pkg: string, toml: string, name: string): Witness {
   ensureCompiled(pkg);
-  writeFileSync(join(pkgDir(pkg), `${name}.toml`), toml);
+  const prover = `${name}_${process.pid}`;
+  const inputs = join(pkgDir(pkg), `${prover}.toml`);
+  const witness = join(pkgDir(pkg), "target", `${prover}.gz`);
+  writeFileSync(inputs, toml, { mode: 0o600 });
   const t0 = now();
-  run("nargo", ["execute", "--silence-warnings", "-p", name, name], pkgDir(pkg));
-  return { witness: join(pkgDir(pkg), "target", `${name}.gz`), ms: now() - t0 };
+  try {
+    run("nargo", ["execute", "--silence-warnings", "-p", prover, prover], pkgDir(pkg));
+  } finally {
+    rmSync(inputs, { force: true });
+  }
+  return { witness, ms: now() - t0, discard: () => {
+      rmSync(witness, { force: true });
+    },
+  };
 }
 
 export interface ProveResult {

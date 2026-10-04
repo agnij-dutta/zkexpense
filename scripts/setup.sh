@@ -6,6 +6,6 @@ cd "$ROOT"
 npm install
 npm run build
 cd "$ROOT/contracts"
-[ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git
+[ -d lib/forge-std ] || forge install foundry-rs/forge-std@v1.17.0 --no-git
 [ -d lib/openzeppelin-contracts ] || forge install OpenZeppelin/openzeppelin-contracts@v5.1.0 --no-git
 "$ROOT/scripts/build.sh"

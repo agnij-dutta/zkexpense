@@ -4,146 +4,146 @@
     "cores": 10,
     "memGb": 16,
     "loadAvgAtEnd": [
-      20.1,
-      24,
-      32.5
+      20.3,
+      22.7,
+      19.4
     ],
     "nargo": "nargo version = 1.0.0-beta.19",
     "bb": "4.0.0-nightly.20260120",
-    "date": "2026-10-04T06:47:17.991Z"
+    "date": "2026-10-04T19:57:18.210Z"
   },
   "cases": {
     "n64": {
       "circuit": "batch_64",
       "payments": 64,
-      "gates": 76266,
-      "proveMsBest": 3281,
+      "gates": 80303,
+      "proveMsBest": 814,
       "proveMsAll": [
-        3606,
-        3440,
-        3281
+        814,
+        903,
+        1156
       ],
-      "witnessMs": 304,
-      "peakRssMb": 226,
+      "witnessMs": 84,
+      "peakRssMb": 248,
       "proofBytes": 9408,
       "publicInputs": 15,
-      "verifyMsMedian": 8.44,
-      "verifyMsMin": 7.5,
+      "verifyMsMedian": 4.66,
+      "verifyMsMin": 3.9,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2557679,
-      "submitReportGas": 2658028,
-      "calldataGas": 151060
+      "submitReportGas": 2662932,
+      "calldataGas": 151284
     },
     "n256": {
       "circuit": "batch_256",
       "payments": 256,
-      "gates": 179850,
-      "proveMsBest": 6135,
+      "gates": 196175,
+      "proveMsBest": 2232,
       "proveMsAll": [
-        6245,
-        6135,
-        7747
+        2968,
+        2232,
+        2356
       ],
-      "witnessMs": 688,
-      "peakRssMb": 501,
+      "witnessMs": 243,
+      "peakRssMb": 517,
       "proofBytes": 9792,
       "publicInputs": 15,
-      "verifyMsMedian": 7.97,
-      "verifyMsMin": 7.61,
+      "verifyMsMedian": 3.32,
+      "verifyMsMin": 3.15,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2618547,
-      "submitReportGas": 2718983,
-      "calldataGas": 156964
+      "submitReportGas": 2723887,
+      "calldataGas": 157392
     },
     "n347": {
       "circuit": "batch_512",
       "payments": 347,
-      "gates": 317962,
-      "proveMsBest": 11090,
+      "gates": 350671,
+      "proveMsBest": 3090,
       "proveMsAll": [
-        12300,
-        12539,
-        11090
+        3090,
+        4143,
+        3278
       ],
-      "witnessMs": 699,
-      "peakRssMb": 868,
+      "witnessMs": 294,
+      "peakRssMb": 969,
       "proofBytes": 10176,
       "publicInputs": 15,
-      "verifyMsMedian": 8.29,
-      "verifyMsMin": 7.94,
+      "verifyMsMedian": 3.69,
+      "verifyMsMin": 3.28,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2679440,
-      "submitReportGas": 2779964,
-      "calldataGas": 163156
+      "submitReportGas": 2784868,
+      "calldataGas": 163476
     },
     "n1024": {
       "circuit": "batch_1024",
       "payments": 1024,
-      "gates": 594186,
-      "proveMsBest": 13517,
+      "gates": 659663,
+      "proveMsBest": 7400,
       "proveMsAll": [
-        21962,
-        18493,
-        13517
+        9086,
+        7400,
+        7578
       ],
-      "witnessMs": 1015,
-      "peakRssMb": 1576,
+      "witnessMs": 769,
+      "peakRssMb": 1586,
       "proofBytes": 10560,
       "publicInputs": 15,
-      "verifyMsMedian": 6.94,
-      "verifyMsMin": 6.47,
+      "verifyMsMedian": 4.42,
+      "verifyMsMin": 4.2,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2740358,
-      "submitReportGas": 2840970,
-      "calldataGas": 169204
+      "submitReportGas": 2845874,
+      "calldataGas": 169464
     },
     "n512": {
       "circuit": "batch_512",
       "payments": 512,
-      "gates": 317962,
-      "proveMsBest": 9497,
+      "gates": 350671,
+      "proveMsBest": 3238,
       "proveMsAll": [
-        12802,
-        10188,
-        9497
+        6228,
+        3955,
+        3238
       ],
-      "witnessMs": 689,
-      "peakRssMb": 872,
+      "witnessMs": 370,
+      "peakRssMb": 970,
       "proofBytes": 10176,
       "publicInputs": 15,
-      "verifyMsMedian": 7.84,
-      "verifyMsMin": 6.5,
+      "verifyMsMedian": 3.67,
+      "verifyMsMin": 3.53,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2676940,
-      "submitReportGas": 2779964,
-      "calldataGas": 163072
+      "submitReportGas": 2784868,
+      "calldataGas": 163344
     },
     "n4096": {
       "circuit": "agg_1024x4",
       "payments": 4096,
-      "gates": 3081081,
-      "innerGates": 594186,
-      "proveMsBest": 96214,
+      "gates": 3081118,
+      "innerGates": 659663,
+      "proveMsBest": 46513,
       "proveMsAll": [
-        96214
+        46513
       ],
       "innerProveMs": [
-        9539,
-        7475,
-        7746,
-        11245
+        7185,
+        5508,
+        4229,
+        4240
       ],
-      "aggregateProveMs": 60209,
-      "witnessMs": 4308,
-      "peakRssMb": 5546,
+      "aggregateProveMs": 25351,
+      "witnessMs": 3037,
+      "peakRssMb": 3068,
       "proofBytes": 11328,
       "publicInputs": 15,
-      "verifyMsMedian": 17.45,
-      "verifyMsMin": 8.84,
+      "verifyMsMedian": 3.21,
+      "verifyMsMin": 3.17,
       "verifyEngine": "bb.js (in-process)",
       "verifyGas": 2862272,
-      "submitReportGas": 2963063,
-      "calldataGas": 181540
+      "submitReportGas": 2967967,
+      "calldataGas": 181920
     }
   }
 }

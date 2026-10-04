@@ -71,7 +71,12 @@ function proveSingle(spec: CircuitSpec, log: PaymentLog, vendors: VendorSet, bas
   if (batch.problems.length) throw new PolicyViolation(batch.problems);
   const witness = execute(spec.name, batch.toml, "zkexpense");
   timings.witnessMs = witness.ms;
-  const result = proveAndCheck(spec.name, witness.witness);
+  let result: ProveResult;
+  try {
+    result = proveAndCheck(spec.name, witness.witness);
+  } finally {
+    witness.discard();
+  }
   timings.proveMs = result.ms;
   timings.peakRssMb = result.peakRssMb;
   return { result, policy: batch.policy, report: batch.report };
@@ -91,12 +96,31 @@ function proveAggregate(
   const vkHash = toFields(readFileSync(innerVk.vkHash))[0];
   const inners: InnerBatch[] = [];
   const innerProveMs: number[] = [];
+  // Inner batches are checked against sub-periods, so check the whole log against the outer
+  // period up front; otherwise an out-of-period payment would only surface as a failed proof.
+  const outside = log.payments
+    .filter((p) => p.timestamp < base.periodStart || p.timestamp > base.periodEnd)
+    .map((p) => `tx ${p.transaction.slice(0, 12)}.. at ${p.timestamp} is outside the period`);
+  if (outside.length) throw new PolicyViolation(outside);
+
+  // Batch i covers [boundaries[i-1], boundaries[i]]: its last payment's timestamp, or the previous
+  // boundary when the batch is empty; the last batch always ends at the period end.
+  const boundaries: number[] = [];
   let chainIn = base.chainIn ?? 0n;
   for (let i = 0; i < spec.k; i++) {
     const slice = log.payments.slice(i * spec.batch, (i + 1) * spec.batch);
+    const start = i === 0 ? base.periodStart : boundaries[i - 1];
+    const last = slice.at(-1);
+    const end = i === spec.k - 1 ? base.periodEnd : last ? last.timestamp : start;
+    boundaries.push(end);
     // Distinct blinding per inner batch (domain tag 100 + i), never revealed.
     const blind = hash([base.secret, BigInt(base.periodStart), BigInt(base.periodEnd), 100n + BigInt(i)]);
-    const batch = buildBatch(log, vendors, { ...base, discloseTotal: false, chainIn, blind }, slice);
+    const batch = buildBatch(
+      log,
+      vendors,
+      { ...base, periodStart: start, periodEnd: end, discloseTotal: false, chainIn, blind },
+      slice,
+    );
     if (batch.problems.length) throw new PolicyViolation(batch.problems);
     const witness = execute(spec.inner, batch.toml, `inner_${i}`);
     timings.witnessMs += witness.ms;
@@ -107,6 +131,7 @@ function proveAggregate(
       say(`  batch ${i + 1}/${spec.k}: ${slice.length} payments proven in ${(result.ms / 1000).toFixed(2)}s`);
       inners.push({ proofFields: toFields(result.proof), report: batch.report, total: batch.total, blind });
     } finally {
+      witness.discard();
       rmSync(out, { recursive: true, force: true });
     }
     chainIn = batch.report.chainOut;
@@ -121,11 +146,23 @@ function proveAggregate(
     discloseTotal: base.discloseTotal,
     chainIn: base.chainIn ?? 0n,
   };
-  const agg = buildAggregate(policy, vkFields, vkHash, inners, totalBlind(base.secret, base.periodStart, base.periodEnd));
+  const agg = buildAggregate(
+    policy,
+    vkFields,
+    vkHash,
+    inners,
+    boundaries,
+    totalBlind(base.secret, base.periodStart, base.periodEnd),
+  );
   const witness = execute(spec.name, agg.toml, "zkexpense");
   timings.witnessMs += witness.ms;
   say(`  aggregating ${spec.k} batch proofs (recursive UltraHonk verification in-circuit)`);
-  const result = proveAndCheck(spec.name, witness.witness);
+  let result: ProveResult;
+  try {
+    result = proveAndCheck(spec.name, witness.witness);
+  } finally {
+    witness.discard();
+  }
   timings.innerProveMs = innerProveMs;
   timings.aggregateProveMs = Math.round(result.ms);
   timings.peakRssMb = result.peakRssMb;

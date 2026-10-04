@@ -2,8 +2,11 @@
 export * from "./lib/types.js";
 export { hash, hash2, merklePath, merkleRoot, toHex, P } from "./lib/hash.js";
 export {
+  DOMAIN,
   V,
   chainIdOf,
+  chainStep,
+  commitTotal,
   flattenX402,
   ingestLog,
   ingestVendors,

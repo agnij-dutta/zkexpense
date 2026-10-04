@@ -2,10 +2,10 @@
 //   flat:  { transaction, payer, payTo, amount, asset, network, timestamp }
 //   raw:   { paymentRequirements, settleResponse, timestamp }   (what an x402 client sees)
 // x402 spec: https://github.com/coinbase/x402
-import { hash, hash2, merkleRoot } from "./hash.js";
+import { hash, merkleRoot } from "./hash.js";
 import type { Payment, PaymentLog, Policy, VendorSet } from "./types.js";
 
-/** Vendor table size. Must match `global V` in circuits/lib/src/batch.nr. */
+/** Vendor table size. Must match `global V` in circuits/lib/src/lib.nr. */
 export const V = 256;
 
 /** x402 network names -> EVM chain id. CAIP-2 `eip155:<id>` is also accepted. */
@@ -156,13 +156,22 @@ export function ingestVendors(raw: unknown): VendorSet {
   return { addrs: [...new Set((addrs as string[]).map((a) => a.toLowerCase()))], salt: BigInt(salt) };
 }
 
+/** Domain tags for 3-input hashes. Must match DOMAIN_* in circuits/lib/src/lib.nr. */
+export const DOMAIN = { vendorLeaf: 1n, chain: 2n, total: 3n } as const;
+
+/** One step of the payment hash chain: H(chain, leaf, DOMAIN.chain). */
+export const chainStep = (chain: bigint, leaf: bigint): bigint => hash([chain, leaf, DOMAIN.chain]);
+
+/** Hiding commitment to a total: H(total, blind, DOMAIN.total). */
+export const commitTotal = (total: bigint, blind: bigint): bigint => hash([total, blind, DOMAIN.total]);
+
 /** Salted Poseidon2 Merkle root over the V-slot vendor table (empty slots are 0). */
 export function vendorRoot({ addrs, salt }: VendorSet): bigint {
-  const leaves = Array.from({ length: V }, (_, i) => (i < addrs.length ? hash2(BigInt(addrs[i]), salt) : 0n));
+  const leaves = Array.from({ length: V }, (_, i) => (i < addrs.length ? hash([BigInt(addrs[i]), salt, DOMAIN.vendorLeaf]) : 0n));
   return merkleRoot(leaves);
 }
 
-/** The payment leaf. Field order must match `leaf_hash` in circuits/lib/src/batch.nr. */
+/** The payment leaf. Field order must match `leaf_hash` in circuits/lib/src/lib.nr. */
 export function leafHash(
   policy: Pick<Policy, "payer" | "asset" | "chainId">,
   p: Pick<Payment, "payTo" | "amount" | "timestamp" | "transaction">,

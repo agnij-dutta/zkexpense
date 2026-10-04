@@ -19,8 +19,12 @@ contract ExpenseAttestationTest is Test {
     bytes32 constant AGG_64X2 = keccak256("agg_64x2");
     bytes32 constant AGENT = keccak256("agent:research-bot-7");
     uint96 constant CAP = 100e6; // $100 in USDC atomic units
+    uint64 constant SEP_START = 1788220800; // 2026-09-01T00:00:00Z
     uint256 constant SEP_END = 1790812799; // 2026-09-30T23:59:59Z
+    uint64 constant OCT_START = 1790812800; // 2026-10-01T00:00:00Z
     uint256 constant OCT_END = 1793491199; // 2026-10-31T23:59:59Z
+    uint32 constant MIN_PERIOD = 28 days;
+    uint256 constant FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
     ExpenseAttestation registry;
     IHonkVerifier v64;
@@ -61,9 +65,13 @@ contract ExpenseAttestationTest is Test {
         vm.stopPrank();
 
         vm.prank(principal);
-        registry.registerAgent(AGENT, _addr(sep.pi[0]), _addr(sep.pi[1]), uint64(uint256(sep.pi[2])), sep.pi[9], CAP);
+        _register(AGENT, _addr(sep.pi[0]), uint64(uint256(sep.pi[2])), SEP_START, MIN_PERIOD);
 
         vm.warp(SEP_END + 1 days);
+    }
+
+    function _register(bytes32 id, address payer, uint64 chainId, uint64 firstStart, uint32 minPeriod) internal {
+        registry.registerAgent(id, payer, _addr(sep.pi[1]), chainId, sep.pi[9], CAP, firstStart, minPeriod);
     }
 
     function _verifies(IHonkVerifier v, bytes memory proof, bytes32[] memory pi) internal returns (bool) {
@@ -124,90 +132,130 @@ contract ExpenseAttestationTest is Test {
     function test_submit_recordsAttestation() public {
         vm.prank(anyone);
         uint256 g = gasleft();
-        uint256 idx = registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        uint256 idx = registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
         console2.log("submitReport (batch_64) gas", g - gasleft());
         assertEq(idx, 0);
 
-        ExpenseAttestation.Attestation memory a = registry.attestation(AGENT, 0);
+        ExpenseAttestation.Attestation memory a = registry.attestation(principal, AGENT, 0);
         assertEq(a.logRoot, sep.pi[8]);
         assertEq(a.periodStart, uint256(sep.pi[3]));
         assertEq(a.periodEnd, SEP_END);
         assertEq(a.count, 50);
         assertTrue(a.underBudget);
-        assertTrue(registry.isAttested(AGENT, 0, sep.pi));
-        assertFalse(registry.isAttested(AGENT, 0, oct.pi));
+        assertTrue(registry.isAttested(principal, AGENT, 0, sep.pi));
+        assertFalse(registry.isAttested(principal, AGENT, 0, oct.pi));
 
-        ExpenseAttestation.Mandate memory m = registry.mandate(AGENT);
+        ExpenseAttestation.Mandate memory m = registry.mandate(principal, AGENT);
         assertEq(m.reports, 1);
-        assertEq(m.lastPeriodEnd, SEP_END);
+        assertEq(m.nextPeriodStart, SEP_END + 1);
         assertEq(m.lastChainOut, sep.pi[14]);
     }
 
     function test_submit_emitsEvent() public {
         vm.expectEmit(true, true, true, true, address(registry));
         emit ExpenseAttestation.ReportAttested(
-            AGENT, 0, BATCH_64, uint64(uint256(sep.pi[3])), uint64(SEP_END), sep.pi[8], 50, true, sep.pi
+            principal, AGENT, 0, BATCH_64, uint64(uint256(sep.pi[3])), uint64(SEP_END), sep.pi[8], 50, true, sep.pi
         );
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_chainsConsecutivePeriods() public {
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
         assertEq(oct.pi[7], sep.pi[14], "oct chain_in is sep chain_out");
         vm.warp(OCT_END + 1);
-        uint256 idx = registry.submitReport(AGENT, BATCH_64, oct.proof, oct.pi);
+        uint256 idx = registry.submitReport(principal, AGENT, BATCH_64, oct.proof, oct.pi);
         assertEq(idx, 1);
-        assertEq(registry.mandate(AGENT).lastChainOut, oct.pi[14]);
+        assertEq(registry.mandate(principal, AGENT).lastChainOut, oct.pi[14]);
     }
 
-    function test_submit_revertsWhenSkippingAPeriodChain() public {
+    function test_submit_revertsWhenSkippingTheFirstPeriod() public {
+        // Hiding September by reporting October first is not possible: the mandate fixes the start.
+        vm.warp(OCT_END + 1);
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.PeriodNotContiguous.selector, SEP_START, OCT_START));
+        registry.submitReport(principal, AGENT, BATCH_64, oct.proof, oct.pi);
+    }
+
+    function test_submit_revertsOnChainBreak() public {
+        // A mandate that starts in October still needs October's chain_in to be the genesis value.
+        bytes32 other = keccak256("october-agent");
+        vm.prank(principal);
+        _register(other, _addr(sep.pi[0]), 8453, OCT_START, MIN_PERIOD);
         vm.warp(OCT_END + 1);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.ChainBreak.selector, bytes32(0), oct.pi[7]));
-        registry.submitReport(AGENT, BATCH_64, oct.proof, oct.pi);
+        registry.submitReport(principal, other, BATCH_64, oct.proof, oct.pi);
+    }
+
+    function test_submit_revertsOnSplitPeriod() public {
+        // A 31-day minimum rejects a 30-day September report: periods cannot be split to multiply the cap.
+        bytes32 other = keccak256("monthly-agent");
+        vm.prank(principal);
+        _register(other, _addr(sep.pi[0]), 8453, SEP_START, 31 days);
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.PeriodTooShort.selector, 30 days, 31 days));
+        registry.submitReport(principal, other, BATCH_64, sep.proof, sep.pi);
+    }
+
+    function test_submit_revertsOnNonCanonicalInput() public {
+        // chainOut + p is the same field element; accepting it would let anyone store a chain head
+        // that the next honest report (canonical chain_in) can never match.
+        bytes32[] memory pi = sep.pi;
+        pi[14] = bytes32(uint256(pi[14]) + FIELD_MODULUS);
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.NonCanonicalInput.selector, 14));
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, pi);
+    }
+
+    function test_submit_sameProofUnderAnotherPrincipalIsIndependent() public {
+        // Mandates are namespaced: a squatter registering the same agent id gets its own record
+        // and cannot block or alter the real principal's history.
+        vm.prank(anyone);
+        _register(AGENT, _addr(sep.pi[0]), 8453, SEP_START, MIN_PERIOD);
+        registry.submitReport(anyone, AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
+        assertEq(registry.mandate(principal, AGENT).reports, 1);
+        assertEq(registry.mandate(anyone, AGENT).reports, 1);
     }
 
     function test_submit_revertsOnReplay() public {
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
         vm.expectRevert(
-            abi.encodeWithSelector(ExpenseAttestation.PeriodNotContiguous.selector, SEP_END + 1, uint256(sep.pi[3]))
+            abi.encodeWithSelector(ExpenseAttestation.PeriodNotContiguous.selector, SEP_END + 1, SEP_START)
         );
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsBeforePeriodEnds() public {
         vm.warp(SEP_END - 1 days);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.PeriodNotOver.selector, SEP_END));
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnVendorSetChange() public {
         vm.prank(principal);
         registry.updateMandate(AGENT, keccak256("new vendor set"), CAP);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.MandateMismatch.selector, 9));
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnBudgetAboveCap() public {
         vm.prank(principal);
         registry.updateMandate(AGENT, sep.pi[9], 10e6);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.BudgetAboveCap.selector, 25e6, 10e6));
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnWrongPayer() public {
         bytes32 other = keccak256("other-agent");
         vm.prank(principal);
-        registry.registerAgent(other, makeAddr("otherPayer"), _addr(sep.pi[1]), 8453, sep.pi[9], CAP);
+        _register(other, makeAddr("otherPayer"), 8453, SEP_START, MIN_PERIOD);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.MandateMismatch.selector, 0));
-        registry.submitReport(other, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, other, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnWrongChain() public {
         bytes32 other = keccak256("other-agent");
         vm.prank(principal);
-        registry.registerAgent(other, _addr(sep.pi[0]), _addr(sep.pi[1]), 1, sep.pi[9], CAP);
+        _register(other, _addr(sep.pi[0]), 1, SEP_START, MIN_PERIOD);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.MandateMismatch.selector, 2));
-        registry.submitReport(other, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, other, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnTamperedInputThatPassesMandate() public {
@@ -215,19 +263,19 @@ contract ExpenseAttestationTest is Test {
         bytes32[] memory pi = sep.pi;
         pi[5] = bytes32(uint256(1e6));
         vm.expectRevert();
-        registry.submitReport(AGENT, BATCH_64, sep.proof, pi);
-        assertEq(registry.mandate(AGENT).reports, 0);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, pi);
+        assertEq(registry.mandate(principal, AGENT).reports, 0);
     }
 
     function test_submit_overBudgetIsRecordedAndFlagged() public {
         vm.expectEmit(true, true, false, true, address(registry));
-        emit ExpenseAttestation.BudgetExceeded(AGENT, 0, 1e6);
-        registry.submitReport(AGENT, BATCH_64, over.proof, over.pi);
-        assertFalse(registry.attestation(AGENT, 0).underBudget);
+        emit ExpenseAttestation.BudgetExceeded(principal, AGENT, 0, 1e6);
+        registry.submitReport(principal, AGENT, BATCH_64, over.proof, over.pi);
+        assertFalse(registry.attestation(principal, AGENT, 0).underBudget);
     }
 
     function test_submit_disclosedTotal() public {
-        registry.submitReport(AGENT, BATCH_64, disclosed.proof, disclosed.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, disclosed.proof, disclosed.pi);
         assertEq(uint256(disclosed.pi[6]), 1, "disclose flag");
         uint256 total = uint256(disclosed.pi[12]);
         assertGt(total, 0);
@@ -238,60 +286,63 @@ contract ExpenseAttestationTest is Test {
 
     function test_submit_aggregatedReport() public {
         uint256 g = gasleft();
-        registry.submitReport(AGENT, AGG_64X2, agg.proof, agg.pi);
+        registry.submitReport(principal, AGENT, AGG_64X2, agg.proof, agg.pi);
         console2.log("submitReport (agg_64x2) gas", g - gasleft());
-        assertEq(registry.attestation(AGENT, 0).count, 120);
+        assertEq(registry.attestation(principal, AGENT, 0).count, 120);
     }
 
     function test_submit_revertsOnWrongCircuitId() public {
         vm.expectRevert();
-        registry.submitReport(AGENT, AGG_64X2, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, AGG_64X2, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnUnknownCircuit() public {
         bytes32 id = keccak256("batch_9999");
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.UnknownCircuit.selector, id));
-        registry.submitReport(AGENT, id, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, id, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnUnknownAgent() public {
         bytes32 id = keccak256("nobody");
-        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.UnknownAgent.selector, id));
-        registry.submitReport(id, BATCH_64, sep.proof, sep.pi);
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.UnknownAgent.selector, principal, id));
+        registry.submitReport(principal, id, BATCH_64, sep.proof, sep.pi);
     }
 
     function test_submit_revertsOnBadLength() public {
         bytes32[] memory pi = new bytes32[](14);
         vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.BadPublicInputsLength.selector, 14));
-        registry.submitReport(AGENT, BATCH_64, sep.proof, pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, pi);
     }
 
     function test_submit_revertsWhenPaused() public {
         vm.prank(owner);
         registry.pause();
         vm.expectRevert(Pausable.EnforcedPause.selector);
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
         vm.prank(owner);
         registry.unpause();
-        registry.submitReport(AGENT, BATCH_64, sep.proof, sep.pi);
+        registry.submitReport(principal, AGENT, BATCH_64, sep.proof, sep.pi);
     }
 
     // ------------------------------------------------------------------ admin / principal
 
     function test_registerAgent_revertsIfTaken() public {
-        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.AgentExists.selector, AGENT));
-        registry.registerAgent(AGENT, address(1), address(2), 1, bytes32(0), 1);
+        vm.prank(principal);
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.AgentExists.selector, principal, AGENT));
+        registry.registerAgent(AGENT, address(1), address(2), 1, bytes32(0), 1, 0, 0);
     }
 
     function test_registerAgent_revertsOnZeroAddress() public {
         vm.expectRevert(ExpenseAttestation.ZeroAddress.selector);
-        registry.registerAgent(keccak256("x"), address(0), address(2), 1, bytes32(0), 1);
+        registry.registerAgent(keccak256("x"), address(0), address(2), 1, bytes32(0), 1, 0, 0);
     }
 
     function test_updateMandate_onlyPrincipal() public {
+        // `anyone` has no mandate under this id, so it cannot touch the principal's.
         vm.prank(anyone);
-        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.NotPrincipal.selector, anyone));
+        vm.expectRevert(abi.encodeWithSelector(ExpenseAttestation.UnknownAgent.selector, anyone, AGENT));
         registry.updateMandate(AGENT, bytes32(0), 0);
+        assertEq(registry.mandate(principal, AGENT).vendorRoot, sep.pi[9]);
     }
 
     function test_addVerifier_appendOnly() public {

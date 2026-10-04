@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Benchmarks: proving time, memory, proof size, verification time and on-chain gas per circuit.
-// usage: node scripts/bench.mjs [--runs 3] [--only batch_64,batch_256] [--skip-agg]
+// usage: node scripts/bench.mjs [--runs 3] [--only n64,n347] [--skip-agg]   (run `npm run build` first)
 // Writes bench/results.json and contracts/test/fixtures/bench/<case>.json (for GasBench.t.sol).
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -23,6 +23,8 @@ const CASES = [
   { id: "n4096", circuit: "agg_1024x4", payments: 4096, runs: 1 },
 ].filter((c) => (!only || only.includes(c.id)) && !(process.argv.includes("--skip-agg") && c.circuit.startsWith("agg")));
 
+const loadAvgAtStart = loadavg().map((x) => +x.toFixed(1));
+const startedAt = new Date().toISOString();
 const FIX = join(ROOT, "contracts/test/fixtures/bench");
 mkdirSync(FIX, { recursive: true });
 mkdirSync(join(ROOT, "bench"), { recursive: true });
@@ -86,9 +88,12 @@ for (const m of forge.matchAll(/GAS (\w+) verify=(\d+) submit=(\d+) calldata=(\d
 
 const env = {
   cpu: cpus()[0].model, cores: cpus().length, memGb: Math.round(totalmem() / 2 ** 30),
+  loadAvgAtStart,
   loadAvgAtEnd: loadavg().map((x) => +x.toFixed(1)),
+  runs: RUNS,
   nargo: execFileSync("nargo", ["--version"]).toString().split("\n")[0],
   bb: execFileSync("bb", ["--version"]).toString().trim(),
+  startedAt,
   date: new Date().toISOString(),
 };
 writeFileSync(resultsPath, JSON.stringify({ env, cases: results }, null, 2));

@@ -4,14 +4,24 @@ use zkexpense_lib::{aggregate, Inner, INNER_VK_LEN, Policy, Report};
 global K: u32 = 4;
 global BATCH: u32 = 1024;
 // Poseidon2 vk hash of circuits/batch_1024 (bb write_vk -t noir-recursive-no-zk).
-global PINNED_VK_HASH: Field = 0x2d87beee9dbb5e3c0416511cdd643a8961ef7c4c1ca63d81f78c28c55dfd892a;
+global PINNED_VK_HASH: Field = 0x21edd8cac5e04f022717e15b8a2134b654f04f59910c473424798a70b461ccc8;
 
 fn main(
     policy: pub Policy,
     inner_vk: [Field; INNER_VK_LEN],
     inner_vk_hash: Field,
     inners: [Inner; K],
+    boundaries: [u64; K],
     total_blind: Field,
 ) -> pub Report {
-    aggregate(policy, BATCH, inner_vk, inner_vk_hash, PINNED_VK_HASH, inners, total_blind)
+    aggregate(
+        policy,
+        BATCH,
+        inner_vk,
+        inner_vk_hash,
+        PINNED_VK_HASH,
+        inners,
+        boundaries,
+        total_blind,
+    )
 }

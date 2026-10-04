@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import {
   buildBatch,
   chainIdOf,
+  chainStep,
+  commitTotal,
   decodePublicInputs,
   expectedPublicInputs,
+  hash2,
   ingestLog,
   ingestVendors,
   parseAmount,
@@ -98,4 +101,21 @@ test("raw x402 requirement/settlement pairs are accepted", () => {
   }]);
   assert.equal(log.payments[0].amount, 1000n);
   assert.throws(() => ingestLog([{ paymentRequirements: {}, settleResponse: { success: false, errorReason: "insufficient_funds" } }]), /unsettled/);
+});
+
+test("witness builder flags out-of-order or repeated payments in a hand-built slice", () => {
+  const log = ingestLog([row(0), row(1), row(2)]);
+  const vendors = ingestVendors({ salt: "0x01", vendors: [A(0xa0), A(0xa1)] });
+  const opts = { N: 64, budget: 10n ** 9n, periodStart: 1_788_220_800, periodEnd: 1_788_220_800 + 86400, discloseTotal: false, secret: 1n };
+  const [a, b] = log.payments;
+  assert.equal(buildBatch(log, vendors, opts, [a, b]).problems.length, 0);
+  assert.match(buildBatch(log, vendors, opts, [b, a]).problems[0], /strictly after/);
+  assert.match(buildBatch(log, vendors, opts, [a, a]).problems[0], /strictly after/);
+});
+
+test("hash domains: vendor leaf, chain step and total commitment differ from a Merkle node", () => {
+  const node = hash2(5n, 6n);
+  assert.notEqual(chainStep(5n, 6n), node);
+  assert.notEqual(commitTotal(5n, 6n), node);
+  assert.notEqual(chainStep(5n, 6n), commitTotal(5n, 6n));
 });

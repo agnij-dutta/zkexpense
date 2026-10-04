@@ -16,7 +16,7 @@ gen_verifier() { # pkg
   local pkg="$1" name; name="$(pascal "$pkg")Verifier"
   bb write_solidity_verifier -k "$C/$pkg/target/vk_evm/vk" -o "$OUT/$name.sol" -t evm >/dev/null 2>&1
   # Unique contract name per circuit so several verifiers can live in one Foundry project.
-  sed -i '' "s/^contract HonkVerifier is/contract $name is/" "$OUT/$name.sol"
+  sed -i.bak "s/^contract HonkVerifier is/contract $name is/" "$OUT/$name.sol" && rm "$OUT/$name.sol.bak"
   echo "  verifier  $OUT/$name.sol"
 }
 
@@ -33,7 +33,7 @@ for spec in "${AGGS[@]}"; do
   b="${spec%%:*}"; k="${spec##*:}"; pkg="agg_${b}x${k}"
   echo "[$pkg]"
   mkdir -p "$C/$pkg/src"
-  hash="0x$(xxd -p -c32 "$C/batch_$b/target/vk_noir-recursive-no-zk/vk_hash")"
+  hash="0x$(od -An -v -tx1 "$C/batch_$b/target/vk_noir-recursive-no-zk/vk_hash" | tr -d ' \n')"
   cat > "$C/$pkg/Nargo.toml" <<TOML
 [package]
 name = "$pkg"
@@ -57,9 +57,19 @@ fn main(
     inner_vk: [Field; INNER_VK_LEN],
     inner_vk_hash: Field,
     inners: [Inner; K],
+    boundaries: [u64; K],
     total_blind: Field,
 ) -> pub Report {
-    aggregate(policy, BATCH, inner_vk, inner_vk_hash, PINNED_VK_HASH, inners, total_blind)
+    aggregate(
+        policy,
+        BATCH,
+        inner_vk,
+        inner_vk_hash,
+        PINNED_VK_HASH,
+        inners,
+        boundaries,
+        total_blind,
+    )
 }
 NR
   (cd "$C/$pkg" && nargo compile --silence-warnings)

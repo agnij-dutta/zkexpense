@@ -1,8 +1,8 @@
 // Circuit inputs (Prover.toml) and the expected public report, computed off-circuit.
 // Every proof's public inputs are compared against this model, so a hash mismatch between
 // TypeScript and Noir fails loudly instead of producing a report nobody can reproduce.
-import { hash2, merkleRoot, toHex } from "./hash.js";
-import { V, leafHash, paymentSalt, splitTx, totalBlind, vendorRoot } from "./model.js";
+import { merkleRoot, toHex } from "./hash.js";
+import { V, chainStep, commitTotal, leafHash, paymentSalt, splitTx, totalBlind, vendorRoot } from "./model.js";
 import type { DecodedReport, Payment, PaymentLog, Policy, Report, VendorSet } from "./types.js";
 
 /** TOML string literal for a field element (hex) or a plain value. */
@@ -90,6 +90,10 @@ export function buildBatch(
 
   slice.forEach((p, i) => {
     const short = p.transaction.slice(0, 12);
+    const prev = slice[i - 1] as Payment | undefined;
+    if (prev && !(p.timestamp > prev.timestamp || (p.timestamp === prev.timestamp && p.transaction > prev.transaction))) {
+      problems.push(`tx ${short}.. is not strictly after the previous payment in (timestamp, tx hash) order`);
+    }
     const vendorIdx = vendorIndex.get(p.payTo);
     if (vendorIdx === undefined) problems.push(`payTo ${p.payTo} (tx ${short}..) is not an approved vendor`);
     if (p.timestamp < periodStart || p.timestamp > periodEnd) {
@@ -99,7 +103,7 @@ export function buildBatch(
     const leaf = leafHash(policy, p, salt);
     leaves[i] = leaf;
     total += p.amount;
-    chain = hash2(chain, leaf);
+    chain = chainStep(chain, leaf);
     const [hi, lo] = splitTx(p.transaction);
     slots.push(slot(BigInt(p.payTo), p.amount, p.timestamp, hi, lo, salt, vendorIdx ?? 0));
   });
@@ -112,7 +116,7 @@ export function buildBatch(
     count: slice.length,
     underBudget: total <= budget,
     disclosedTotal: discloseTotal ? total : 0n,
-    totalCommit: hash2(total, blind),
+    totalCommit: commitTotal(total, blind),
     chainOut: chain,
   };
 
@@ -210,8 +214,10 @@ export function buildAggregate(
   vkFields: string[],
   vkHash: string,
   inners: InnerBatch[],
+  boundaries: number[],
   totalBlindValue: bigint,
 ): { toml: string; report: Report; total: bigint } {
+  if (boundaries.length !== inners.length) throw new Error("one boundary per inner batch");
   let total = 0n;
   let count = 0;
   let chain = policy.chainIn;
@@ -226,12 +232,13 @@ export function buildAggregate(
     count,
     underBudget: total <= policy.budget,
     disclosedTotal: policy.discloseTotal ? total : 0n,
-    totalCommit: hash2(total, totalBlindValue),
+    totalCommit: commitTotal(total, totalBlindValue),
     chainOut: chain,
   };
   const lines = [
     `inner_vk = [${vkFields.map((f) => `"${f}"`).join(", ")}]`,
     `inner_vk_hash = "${vkHash}"`,
+    `boundaries = [${boundaries.map((b) => `"${b}"`).join(", ")}]`,
     `total_blind = ${tomlValue(totalBlindValue)}`,
     ``,
     ...policyToml(policy),

@@ -1,4 +1,4 @@
-use zkexpense_lib::{Payment, Policy, Report, V, prove_batch};
+use zkexpense_lib::{Payment, Policy, prove_batch, Report, V};
 
 global N: u32 = 1024;
 

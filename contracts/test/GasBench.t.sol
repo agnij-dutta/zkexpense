@@ -34,15 +34,17 @@ contract GasBench is Test {
             address(uint160(uint256(pi[1]))),
             uint64(uint256(pi[2])),
             pi[9],
-            type(uint96).max
+            type(uint96).max,
+            uint64(uint256(pi[3])),
+            0
         );
         vm.warp(uint256(pi[4]) + 1);
         g = gasleft();
-        reg.submitReport("a", cid, proof, pi);
+        reg.submitReport(address(this), "a", cid, proof, pi);
         uint256 submitGas = g - gasleft();
 
         // Intrinsic calldata cost of a submitReport tx (EIP-2028: 4 gas/zero byte, 16 gas/non-zero).
-        bytes memory data = abi.encodeCall(ExpenseAttestation.submitReport, ("a", cid, proof, pi));
+        bytes memory data = abi.encodeCall(ExpenseAttestation.submitReport, (address(this), "a", cid, proof, pi));
         uint256 cd;
         for (uint256 i; i < data.length; ++i) {
             cd += data[i] == 0 ? 4 : 16;

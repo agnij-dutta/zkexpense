@@ -40,3 +40,17 @@ test("a doctored opening is rejected", () => {
 test("wrong secret cannot reproduce the root", () => {
   assert.throws(() => disclose(log, pj, 1n, log.payments[0].transaction), /log root/);
 });
+
+test("an entry can be opened by leaf index (auditor samples the log, then checks the chain)", () => {
+  const d = disclose(log, pj, SECRET, 7);
+  assert.equal(d.index, 7);
+  assert.equal(d.payment.transaction, log.payments[7].transaction);
+  assert.ok(checkDisclosure(d, pj));
+  assert.throws(() => disclose(log, pj, SECRET, log.payments.length), /not a payment/);
+  assert.throws(() => disclose(log, pj, SECRET, -1), /not a payment/);
+});
+
+test("an opening is only valid against its own report", () => {
+  const d = disclose(log, pj, SECRET, log.payments[0].transaction);
+  assert.equal(checkDisclosure(d, aggPj), false);
+});

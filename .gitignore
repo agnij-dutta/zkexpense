@@ -1,12 +1,26 @@
+# dependencies and build output
 node_modules/
-circuits/*/target/
-circuits/*/*.toml
-!circuits/*/Nargo.toml
+dist/
 contracts/out/
 contracts/cache/
 contracts/lib/
+contracts/broadcast/
+circuits/*/target/
+
+# witness inputs written by the prover (may contain private payment data)
+circuits/*/*.toml
+!circuits/*/Nargo.toml
+
+# agent secret, local proofs, keys and env files
 .zkexpense/
 /proof*.json
+/disclosure*.json
+.env
+.env.*
+*.pem
+*.key
+
+# misc
 *.log
+coverage/
 .DS_Store
-dist/
