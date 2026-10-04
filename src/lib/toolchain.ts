@@ -2,7 +2,7 @@
 // Shelling out to the CLIs keeps zkExpense pinned to exactly the versions that generated the
 // verification keys and Solidity verifiers, instead of a JS port that may drift.
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -53,6 +53,10 @@ export function ensureCompiled(pkg: string): string {
   const artifact = join(target, `${pkg}.json`);
   if (!existsSync(artifact) || statSync(artifact).mtimeMs < sourcesMtime(pkg)) {
     run("nargo", ["compile", "--silence-warnings"], pkgDir(pkg));
+    // nargo leaves the artifact untouched when the compiled program is unchanged (e.g. after a
+    // pure `nargo fmt`), so bump its mtime or it would look stale on every call.
+    const nowDate = new Date();
+    utimesSync(artifact, nowDate, nowDate);
     for (const f of readdirSync(target)) {
       if (f.startsWith("vk_")) rmSync(join(target, f), { recursive: true, force: true });
     }
