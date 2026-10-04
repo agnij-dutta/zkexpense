@@ -7,7 +7,7 @@ import { totalBlind } from "./model.mjs";
 import { buildAggregate, buildBatch, decodePublicInputs, expectedPublicInputs } from "./witness.mjs";
 import { ensureVk, execute, prove, toFields, verifyNative } from "./prover.mjs";
 
-export const SINGLE = [64, 256, 1024].map((n) => ({ name: `batch_${n}`, kind: "single", capacity: n, batch: n }));
+export const SINGLE = [64, 256, 512, 1024].map((n) => ({ name: `batch_${n}`, kind: "single", capacity: n, batch: n }));
 export const AGG = [
   { name: "agg_64x2", kind: "agg", inner: "batch_64", batch: 64, k: 2, capacity: 128 },
   { name: "agg_1024x4", kind: "agg", inner: "batch_1024", batch: 1024, k: 4, capacity: 4096 },
@@ -50,6 +50,7 @@ export function proveReport(log, vendors, opts) {
     const p = prove(c.name, w.witness, "evm", out);
     selfVerify(c.name, out);
     timings.proveMs = p.ms;
+    timings.peakRssMb = p.peakRssMb;
     final = { p, policy: b.policy, report: b.report };
   } else {
     const innerVk = ensureVk(c.inner, "noir-recursive-no-zk");
@@ -88,6 +89,7 @@ export function proveReport(log, vendors, opts) {
     // proof still yields an outer proof: it just never verifies. Always check before shipping.
     selfVerify(c.name, out);
     timings.aggregateProveMs = p.ms;
+    timings.peakRssMb = p.peakRssMb;
     timings.proveMs = timings.innerProveMs.reduce((s, x) => s + x, 0) + p.ms;
     final = { p, policy, report: a.report };
   }
@@ -109,7 +111,7 @@ export function proveReport(log, vendors, opts) {
     meta: {
       payments: log.payments.length,
       proofBytes: final.p.proof.length,
-      timings: Object.fromEntries(Object.entries(timings).map(([k, v]) => [k, Array.isArray(v) ? v : Math.round(v)])),
+      timings: Object.fromEntries(Object.entries(timings).map(([k, v]) => [k, Array.isArray(v) || v === null ? v : Math.round(v)])),
       createdAt: new Date().toISOString(),
     },
   };

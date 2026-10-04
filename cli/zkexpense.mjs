@@ -8,6 +8,7 @@ import { ingestLog, ingestVendors, parseAmount, vendorRoot } from "./lib/model.m
 import { toHex } from "./lib/hash.mjs";
 import { proveReport, PolicyViolation } from "./lib/report.mjs";
 import { verifyProofJson } from "./lib/verify.mjs";
+import { checkDisclosure, disclose } from "./lib/disclose.mjs";
 import { ROOT } from "./lib/prover.mjs";
 
 const USAGE = `zkexpense: verifiable expense reports for AI agents
@@ -18,10 +19,13 @@ usage:
       --from YYYY-MM-DD --to YYYY-MM-DD   explicit period (UTC, inclusive)
       --disclose-total          reveal the exact total (default: only total <= budget)
       --out <proof.json>        output file (default: proof.json)
-      --circuit <name>          force batch_64 | batch_256 | batch_1024 | agg_64x2 | agg_1024x4
+      --circuit <name>          force batch_64 | batch_256 | batch_512 | batch_1024 | agg_64x2 | agg_1024x4
       --prev <proof.json>       previous period's proof; chains this report onto it
       --secret-file <path>      agent secret for salts/blinding (default: .zkexpense/secret, created)
-  zkexpense verify <proof.json> [--vendor-root 0x..] [--payer 0x..] [--max-budget <usd>]
+  zkexpense verify <proof.json> [--vendor-root 0x..] [--payer 0x..] [--max-budget <usd>] [--engine auto|js|cli]
+  zkexpense disclose <log.json> --proof <proof.json> --tx <hash> [--out disclosure.json]
+      open ONE payment (preimage + Merkle path to the log root), nothing else
+  zkexpense check-disclosure <disclosure.json> --proof <proof.json>
   zkexpense vendor-root <vendors.json>
   zkexpense inspect <log.json>
   zkexpense sample --count <n> [--out examples] [--rogue <n>]
@@ -99,10 +103,10 @@ function cmdProve({ pos, flags }) {
   if (!r.underBudget) process.exitCode = 3;
 }
 
-function cmdVerify({ pos, flags }) {
+async function cmdVerify({ pos, flags }) {
   if (!pos[0]) throw new Error("verify needs <proof.json>");
   const pj = readJson(pos[0]);
-  const res = verifyProofJson(pj);
+  const res = await verifyProofJson(pj, { engine: flags.engine ?? "auto" });
   const r = res.report;
   const checks = [
     ["proof valid (bb, UltraHonk)", res.ok],
@@ -123,8 +127,30 @@ function cmdVerify({ pos, flags }) {
   console.log(`  log root  ${r.logRoot}`);
   console.log(`  vendors   ${r.vendorRoot}`);
   for (const [name, ok] of checks) console.log(`  [${ok ? "ok" : "FAIL"}] ${name}`);
-  console.log(`  verified in ${res.ms.toFixed(1)} ms`);
+  console.log(`  verified in ${res.ms.toFixed(1)} ms [${res.engine}]`);
   if (!checks.every(([, ok]) => ok)) process.exitCode = 1;
+}
+
+function cmdDisclose({ pos, flags }) {
+  if (!pos[0] || !flags.proof || !flags.tx) throw new Error("disclose needs <log.json> --proof <proof.json> --tx <hash>");
+  const log = ingestLog(readJson(pos[0]));
+  const secret = loadSecret(resolve(flags["secret-file"] ?? ".zkexpense/secret"));
+  const d = disclose(log, readJson(flags.proof), secret, flags.tx);
+  const out = flags.out ?? "disclosure.json";
+  writeFileSync(out, JSON.stringify(d, null, 2));
+  console.log(`wrote ${out}: payment #${d.index}, ${usd(d.payment.amount)} to ${d.payment.payTo}`);
+}
+
+async function cmdCheckDisclosure({ pos, flags }) {
+  if (!pos[0] || !flags.proof) throw new Error("check-disclosure needs <disclosure.json> --proof <proof.json>");
+  const pj = readJson(flags.proof);
+  const d = readJson(pos[0]);
+  const proofOk = (await verifyProofJson(pj)).ok;
+  const pathOk = checkDisclosure(d, pj);
+  console.log(`  [${proofOk ? "ok" : "FAIL"}] report proof valid`);
+  console.log(`  [${pathOk ? "ok" : "FAIL"}] payment ${d.payment.transaction} is leaf #${d.index} of the proven log`);
+  console.log(`  ${usd(d.payment.amount)} to ${d.payment.payTo} at ${iso(d.payment.timestamp)}`);
+  if (!proofOk || !pathOk) process.exitCode = 1;
 }
 
 function cmdVendorRoot({ pos }) {
@@ -151,10 +177,10 @@ function cmdSample({ flags }) {
 
 const { pos, flags } = parseArgs(process.argv.slice(2));
 const cmd = pos.shift();
-const table = { prove: cmdProve, verify: cmdVerify, "vendor-root": cmdVendorRoot, inspect: cmdInspect, sample: cmdSample };
+const table = { prove: cmdProve, verify: cmdVerify, disclose: cmdDisclose, "check-disclosure": cmdCheckDisclosure, "vendor-root": cmdVendorRoot, inspect: cmdInspect, sample: cmdSample };
 try {
   if (!table[cmd]) { console.log(USAGE); process.exit(cmd ? 2 : 0); }
-  table[cmd]({ pos, flags });
+  await table[cmd]({ pos, flags });
 } catch (e) {
   console.error(e instanceof PolicyViolation ? e.message : `error: ${e.message}`);
   process.exit(e instanceof PolicyViolation ? 4 : 1);

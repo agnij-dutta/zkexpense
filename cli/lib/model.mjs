@@ -41,12 +41,30 @@ export function parseAmount(a, decimals = 6) {
   return BigInt(m[1]) * 10n ** BigInt(decimals) + BigInt(frac);
 }
 
+/**
+ * Accepts either a flat row or the raw x402 pair as an agent would log it:
+ *   { paymentRequirements: { payTo, asset, network, maxAmountRequired | amount },
+ *     settleResponse: { transaction, payer, network, success }, timestamp }
+ */
+export function flattenX402(r) {
+  const req = r.paymentRequirements ?? r.requirements;
+  const set = r.settleResponse ?? r.settlement;
+  if (!req && !set) return r;
+  if (set && set.success === false) throw new Error(`unsettled payment in log (${set.errorReason ?? "success=false"})`);
+  return {
+    transaction: set?.transaction, payer: set?.payer, payTo: req?.payTo,
+    amount: r.amount ?? req?.amount ?? req?.maxAmountRequired, asset: req?.asset,
+    network: set?.network ?? req?.network, timestamp: r.timestamp ?? set?.timestamp,
+  };
+}
+
 /** Ingest a JSON log (array of x402 receipts or { payments: [...] }) into canonical form. */
 export function ingestLog(raw) {
   const rows = Array.isArray(raw) ? raw : raw.payments;
   if (!Array.isArray(rows) || rows.length === 0) throw new Error("log has no payments");
   const seen = new Set();
-  const out = rows.map((r, i) => {
+  const out = rows.map((raw0, i) => {
+    const r = flattenX402(raw0);
     const where = `payment #${i}`;
     const tx = r.transaction ?? r.txHash ?? r.tx;
     if (!isTx(tx)) throw new Error(`${where}: transaction must be a 32-byte hex hash`);

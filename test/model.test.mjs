@@ -75,8 +75,20 @@ test("circuit selection", () => {
   assert.equal(pickCircuit(1).name, "batch_64");
   assert.equal(pickCircuit(64).name, "batch_64");
   assert.equal(pickCircuit(65).name, "batch_256");
-  assert.equal(pickCircuit(347).name, "batch_1024");
+  assert.equal(pickCircuit(347).name, "batch_512");
+  assert.equal(pickCircuit(600).name, "batch_1024");
   assert.equal(pickCircuit(1025).name, "agg_1024x4");
   assert.throws(() => pickCircuit(4097));
   assert.throws(() => pickCircuit(200, "batch_64"));
+});
+
+test("raw x402 requirement/settlement pairs are accepted", () => {
+  const r = row(0);
+  const log = ingestLog([{
+    paymentRequirements: { scheme: "exact", network: "base", maxAmountRequired: r.amount, payTo: r.payTo, asset: r.asset, resource: "https://x" },
+    settleResponse: { success: true, transaction: r.transaction, network: "base", payer: r.payer },
+    timestamp: r.timestamp,
+  }]);
+  assert.equal(log.payments[0].amount, 1000n);
+  assert.throws(() => ingestLog([{ paymentRequirements: {}, settleResponse: { success: false, errorReason: "insufficient_funds" } }]), /unsettled/);
 });

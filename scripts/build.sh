@@ -7,7 +7,7 @@ C="$ROOT/circuits"
 OUT="$ROOT/contracts/src/verifiers"
 mkdir -p "$OUT"
 
-BATCHES=(64 256 1024)
+BATCHES=(64 256 512 1024)
 AGGS=("64:2" "1024:4")
 
 pascal() { echo "$1" | awk -F_ '{for(i=1;i<=NF;i++) printf toupper(substr($i,1,1)) substr($i,2)}'; }

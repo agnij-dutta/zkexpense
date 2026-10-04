@@ -1,5 +1,5 @@
 // Thin orchestration over the installed toolchain: nargo (witness) + bb (UltraHonk proofs).
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,11 +48,21 @@ export function execute(pkg, toml, name) {
 export function prove(pkg, witness, target, outDir) {
   const { vk } = ensureVk(pkg, target);
   mkdirSync(outDir, { recursive: true });
+  const args = ["prove", "-b", ensureCompiled(pkg), "-w", witness, "-k", vk, "-o", outDir, "-t", target];
+  // On macOS, /usr/bin/time -l reports the prover's peak RSS for the benchmarks.
+  const timed = process.platform === "darwin";
   const t0 = now();
-  run("bb", ["prove", "-b", ensureCompiled(pkg), "-w", witness, "-k", vk, "-o", outDir, "-t", target]);
+  const r = timed
+    ? spawnSync("/usr/bin/time", ["-l", "bb", ...args], { encoding: "utf8", maxBuffer: 1 << 28 })
+    : spawnSync("bb", args, { encoding: "utf8", maxBuffer: 1 << 28 });
   const ms = now() - t0;
+  if (r.status !== 0) {
+    throw new Error(`bb prove failed:\n${((r.stdout ?? "") + (r.stderr ?? "")).split("\n").slice(-25).join("\n")}`);
+  }
+  const rss = timed ? Number((r.stderr.match(/(\d+)\s+maximum resident set size/) ?? [])[1] ?? 0) : 0;
   return {
     ms,
+    peakRssMb: rss ? Math.round(rss / (1 << 20)) : null,
     proof: readFileSync(join(outDir, "proof")),
     publicInputs: readFileSync(join(outDir, "public_inputs")),
   };

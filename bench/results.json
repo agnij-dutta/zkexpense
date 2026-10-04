@@ -1,0 +1,149 @@
+{
+  "env": {
+    "cpu": "Apple M4",
+    "cores": 10,
+    "memGb": 16,
+    "loadAvgAtEnd": [
+      20.1,
+      24,
+      32.5
+    ],
+    "nargo": "nargo version = 1.0.0-beta.19",
+    "bb": "4.0.0-nightly.20260120",
+    "date": "2026-10-04T06:47:17.991Z"
+  },
+  "cases": {
+    "n64": {
+      "circuit": "batch_64",
+      "payments": 64,
+      "gates": 76266,
+      "proveMsBest": 3281,
+      "proveMsAll": [
+        3606,
+        3440,
+        3281
+      ],
+      "witnessMs": 304,
+      "peakRssMb": 226,
+      "proofBytes": 9408,
+      "publicInputs": 15,
+      "verifyMsMedian": 8.44,
+      "verifyMsMin": 7.5,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2557679,
+      "submitReportGas": 2658028,
+      "calldataGas": 151060
+    },
+    "n256": {
+      "circuit": "batch_256",
+      "payments": 256,
+      "gates": 179850,
+      "proveMsBest": 6135,
+      "proveMsAll": [
+        6245,
+        6135,
+        7747
+      ],
+      "witnessMs": 688,
+      "peakRssMb": 501,
+      "proofBytes": 9792,
+      "publicInputs": 15,
+      "verifyMsMedian": 7.97,
+      "verifyMsMin": 7.61,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2618547,
+      "submitReportGas": 2718983,
+      "calldataGas": 156964
+    },
+    "n347": {
+      "circuit": "batch_512",
+      "payments": 347,
+      "gates": 317962,
+      "proveMsBest": 11090,
+      "proveMsAll": [
+        12300,
+        12539,
+        11090
+      ],
+      "witnessMs": 699,
+      "peakRssMb": 868,
+      "proofBytes": 10176,
+      "publicInputs": 15,
+      "verifyMsMedian": 8.29,
+      "verifyMsMin": 7.94,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2679440,
+      "submitReportGas": 2779964,
+      "calldataGas": 163156
+    },
+    "n1024": {
+      "circuit": "batch_1024",
+      "payments": 1024,
+      "gates": 594186,
+      "proveMsBest": 13517,
+      "proveMsAll": [
+        21962,
+        18493,
+        13517
+      ],
+      "witnessMs": 1015,
+      "peakRssMb": 1576,
+      "proofBytes": 10560,
+      "publicInputs": 15,
+      "verifyMsMedian": 6.94,
+      "verifyMsMin": 6.47,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2740358,
+      "submitReportGas": 2840970,
+      "calldataGas": 169204
+    },
+    "n512": {
+      "circuit": "batch_512",
+      "payments": 512,
+      "gates": 317962,
+      "proveMsBest": 9497,
+      "proveMsAll": [
+        12802,
+        10188,
+        9497
+      ],
+      "witnessMs": 689,
+      "peakRssMb": 872,
+      "proofBytes": 10176,
+      "publicInputs": 15,
+      "verifyMsMedian": 7.84,
+      "verifyMsMin": 6.5,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2676940,
+      "submitReportGas": 2779964,
+      "calldataGas": 163072
+    },
+    "n4096": {
+      "circuit": "agg_1024x4",
+      "payments": 4096,
+      "gates": 3081081,
+      "innerGates": 594186,
+      "proveMsBest": 96214,
+      "proveMsAll": [
+        96214
+      ],
+      "innerProveMs": [
+        9539,
+        7475,
+        7746,
+        11245
+      ],
+      "aggregateProveMs": 60209,
+      "witnessMs": 4308,
+      "peakRssMb": 5546,
+      "proofBytes": 11328,
+      "publicInputs": 15,
+      "verifyMsMedian": 17.45,
+      "verifyMsMin": 8.84,
+      "verifyEngine": "bb.js (in-process)",
+      "verifyGas": 2862272,
+      "submitReportGas": 2963063,
+      "calldataGas": 181540
+    }
+  }
+}
