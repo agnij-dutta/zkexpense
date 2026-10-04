@@ -1,8 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ingestLog } from "../cli/lib/model.mjs";
-import { checkDisclosure, disclose } from "../cli/lib/disclose.mjs";
+import { checkDisclosure, disclose, ingestLog } from "../dist/index.js";
 
 const root = new URL("..", import.meta.url).pathname;
 const pj = JSON.parse(readFileSync(root + "contracts/test/fixtures/sep.json", "utf8"));

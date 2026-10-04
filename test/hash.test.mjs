@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hash, hash2, merklePath, merkleRoot, toHex } from "../cli/lib/hash.mjs";
+import { hash, hash2, merklePath, merkleRoot, toHex } from "../dist/index.js";
 
 test("sponge matches the Noir test vectors (circuits/lib test_hash_vectors_match_js)", () => {
   assert.equal(toHex(hash2(1n, 2n)), "0x038682aa1cb5ae4e0a3f13da432a95c77c5c111f6f030faf9cad641ce1ed7383");

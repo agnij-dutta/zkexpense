@@ -6,7 +6,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-const CLI = new URL("../cli/zkexpense.mjs", import.meta.url).pathname;
+const CLI = new URL("../dist/cli.js", import.meta.url).pathname;
 const zk = (args, cwd) => spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8" });
 
 test("prove -> verify, and tampering is caught", { timeout: 600_000 }, () => {

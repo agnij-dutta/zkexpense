@@ -1,8 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chainIdOf, ingestLog, ingestVendors, parseAmount } from "../cli/lib/model.mjs";
-import { buildBatch, decodePublicInputs, expectedPublicInputs } from "../cli/lib/witness.mjs";
-import { pickCircuit } from "../cli/lib/report.mjs";
+import {
+  buildBatch,
+  chainIdOf,
+  decodePublicInputs,
+  expectedPublicInputs,
+  ingestLog,
+  ingestVendors,
+  parseAmount,
+  pickCircuit,
+} from "../dist/index.js";
 
 const A = (n) => "0x" + n.toString(16).padStart(40, "0");
 const T = (n) => "0x" + n.toString(16).padStart(64, "0");

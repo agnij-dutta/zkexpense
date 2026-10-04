@@ -3,13 +3,10 @@
 // usage: node scripts/bench.mjs [--runs 3] [--only batch_64,batch_256] [--skip-agg]
 // Writes bench/results.json and contracts/test/fixtures/bench/<case>.json (for GasBench.t.sol).
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { cpus, totalmem, loadavg, tmpdir } from "node:os";
-import { ROOT, ensureCompiled } from "../cli/lib/prover.mjs";
-import { ingestLog, ingestVendors } from "../cli/lib/model.mjs";
-import { proveReport } from "../cli/lib/report.mjs";
-import { verifyProofJson } from "../cli/lib/verify.mjs";
+import { cpus, totalmem, loadavg } from "node:os";
+import { ROOT, ensureCompiled, generateSample, ingestLog, ingestVendors, proveReport, verifyProofJson } from "../dist/index.js";
 
 const arg = (k, d) => {
   const i = process.argv.indexOf(`--${k}`);
@@ -29,7 +26,6 @@ const CASES = [
 const FIX = join(ROOT, "contracts/test/fixtures/bench");
 mkdirSync(FIX, { recursive: true });
 mkdirSync(join(ROOT, "bench"), { recursive: true });
-const work = mkdtempSync(join(tmpdir(), "zkexpense-bench-"));
 
 const gates = (pkg) => {
   const out = execFileSync("bb", ["gates", "-b", ensureCompiled(pkg)], { stdio: ["ignore", "pipe", "ignore"] }).toString();
@@ -43,9 +39,9 @@ if (existsSync(resultsPath)) previous = JSON.parse(readFileSync(resultsPath, "ut
 const results = { ...previous };
 
 for (const c of CASES) {
-  execFileSync(process.execPath, [join(ROOT, "scripts/gen-sample.mjs"), "--count", String(c.payments), "--out", work, "--seed", "99"]);
-  const log = ingestLog(JSON.parse(readFileSync(join(work, `log-${c.payments}.json`), "utf8")));
-  const vendors = ingestVendors(JSON.parse(readFileSync(join(work, "vendors.json"), "utf8")));
+  const sample = generateSample({ count: c.payments, seed: 99 });
+  const log = ingestLog(sample.log);
+  const vendors = ingestVendors(sample.vendors);
   const opts = {
     budget: 500_000_000n, periodStart: Date.UTC(2026, 8, 1) / 1000, periodEnd: Date.UTC(2026, 9, 1) / 1000 - 1,
     discloseTotal: false, secret: 0xbe9cn, circuit: c.circuit,
@@ -81,7 +77,6 @@ for (const c of CASES) {
   };
   console.error(JSON.stringify(results[c.id]));
 }
-rmSync(work, { recursive: true, force: true });
 
 // On-chain gas: real proofs through the bb-generated Solidity verifiers (forge test).
 const forge = execFileSync("forge", ["test", "--match-contract", "GasBench", "-vv"], { cwd: join(ROOT, "contracts") }).toString();

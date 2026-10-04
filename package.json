@@ -1,22 +1,68 @@
 {
   "name": "zkexpense",
   "version": "0.1.0",
-  "scripts": {
-    "build": "scripts/build.sh",
-    "test": "node --test test/*.test.mjs && cd circuits/lib && nargo test && cd ../../contracts && forge test",
-    "bench": "node scripts/bench.mjs",
-    "sample": "node scripts/gen-sample.mjs"
-  },
-  "author": "Agnij Dutta",
+  "description": "Verifiable expense reports for AI agents: one zero-knowledge proof over a month of x402 payments",
+  "keywords": [
+    "zero-knowledge",
+    "zk",
+    "noir",
+    "ultrahonk",
+    "x402",
+    "ai-agents",
+    "payments",
+    "expense-report",
+    "solidity",
+    "erc-8004"
+  ],
+  "author": "Agnij Dutta (https://x.com/0xholmesdev)",
   "license": "MIT",
-  "description": "Verifiable expense reports for AI agents: one ZK proof over a month of x402 payments",
-  "dependencies": {
-    "@zkpassport/poseidon2": "^0.6.2"
+  "homepage": "https://github.com/agnij-dutta/zkexpense#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agnij-dutta/zkexpense.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agnij-dutta/zkexpense/issues"
   },
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
-    "zkexpense": "cli/zkexpense.mjs"
+    "zkexpense": "dist/cli.js"
+  },
+  "files": [
+    "dist/",
+    "circuits/lib/",
+    "circuits/*/Nargo.toml",
+    "circuits/*/src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "build:circuits": "scripts/build.sh",
+    "typecheck": "tsc -p . --noEmit",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write . && cd circuits && nargo fmt && cd ../contracts && forge fmt",
+    "test": "npm run build && npm run test:ts && npm run test:circuits && npm run test:contracts",
+    "test:ts": "node --test test/*.test.mjs",
+    "test:circuits": "cd circuits/lib && nargo test",
+    "test:contracts": "cd contracts && forge test",
+    "fixtures": "npm run build && node scripts/fixtures.mjs",
+    "bench": "npm run build && node scripts/bench.mjs"
+  },
+  "dependencies": {
+    "@zkpassport/poseidon2": "^0.6.2"
   },
   "optionalDependencies": {
     "@aztec/bb.js": "4.0.0-nightly.20260120"
@@ -27,6 +73,7 @@
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "prettier": "^3.9.9",
-    "typescript": "^7.0.2"
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.0"
   }
 }
