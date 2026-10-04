@@ -3,7 +3,7 @@
 // usage: node scripts/bench.mjs [--runs 3] [--only batch_64,batch_256] [--skip-agg]
 // Writes bench/results.json and contracts/test/fixtures/bench/<case>.json (for GasBench.t.sol).
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
 import { join } from "node:path";
 import { cpus, totalmem, loadavg, tmpdir } from "node:os";
 import { ROOT, ensureCompiled } from "../cli/lib/prover.mjs";
@@ -37,8 +37,9 @@ const gates = (pkg) => {
 };
 
 const resultsPath = join(ROOT, "bench/results.json");
+// Merge with earlier results so a partial run (--only) keeps the other cases.
 let previous = {};
-try { previous = JSON.parse(readFileSync(resultsPath, "utf8")).cases ?? {}; } catch {}
+if (existsSync(resultsPath)) previous = JSON.parse(readFileSync(resultsPath, "utf8")).cases ?? {};
 const results = { ...previous };
 
 for (const c of CASES) {

@@ -12,7 +12,7 @@ function run(cmd, args, opts = {}) {
     return execFileSync(cmd, args, { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 1 << 28, ...opts }).toString();
   } catch (e) {
     const out = (e.stdout?.toString() ?? "") + (e.stderr?.toString() ?? "");
-    throw new Error(`${cmd} ${args.join(" ")} failed:\n${out.split("\n").slice(-25).join("\n")}`);
+    throw new Error(`${cmd} ${args.join(" ")} failed:\n${out.split("\n").slice(-25).join("\n")}`, { cause: e });
   }
 }
 

@@ -1,5 +1,5 @@
 // High-level: payment log + vendor set + policy -> one zkExpense proof (single batch or aggregated).
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { hash } from "./hash.mjs";
@@ -132,8 +132,4 @@ export class PolicyViolation extends Error {
 
 function jsonable(o) {
   return JSON.parse(JSON.stringify(o, (_, v) => (typeof v === "bigint" ? v.toString() : v)));
-}
-
-export function ensureDir(d) {
-  mkdirSync(d, { recursive: true });
 }

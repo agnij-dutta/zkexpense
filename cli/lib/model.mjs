@@ -1,10 +1,8 @@
 // Payment-log data model. Input rows mirror x402 settlement receipts:
 //   { transaction, payer, payTo, amount, asset, network, timestamp }
-import { createHash, randomBytes } from "node:crypto";
 import { hash, hash2, merkleRoot } from "./hash.mjs";
 
 export const V = 256; // vendor table size, must match circuits/lib (global V)
-export const BATCH_SIZES = [64, 256, 1024];
 
 // x402 v1 network names and CAIP-2 ids -> EVM chain id
 const NETWORKS = {
@@ -124,11 +122,3 @@ export function paymentSalt(secret, tx) {
   return hash([secret, hi, lo]);
 }
 export const totalBlind = (secret, start, end) => hash([secret, BigInt(start), BigInt(end), 7n]);
-
-export function randomField() {
-  return BigInt("0x" + randomBytes(31).toString("hex"));
-}
-
-export function sha256hex(s) {
-  return createHash("sha256").update(s).digest("hex");
-}

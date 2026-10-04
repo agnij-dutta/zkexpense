@@ -12,7 +12,7 @@ const count = Number(args.count ?? 347);
 const outDir = args.out ?? "examples";
 const month = args.month ?? "2026-09";
 const rogue = Number(args.rogue ?? 0); // payments to a vendor NOT in the approved set
-let seed = BigInt(args.seed ?? 42);
+const seed = BigInt(args.seed ?? 42);
 
 // Deterministic PRNG (sha256 counter mode) so sample logs are reproducible.
 let ctr = 0n;

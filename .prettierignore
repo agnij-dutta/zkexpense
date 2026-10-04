@@ -1,0 +1,6 @@
+node_modules/
+contracts/
+circuits/
+bench/
+examples/
+package-lock.json
