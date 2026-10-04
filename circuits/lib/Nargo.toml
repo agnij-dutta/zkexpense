@@ -1,0 +1,7 @@
+[package]
+name = "zkexpense_lib"
+type = "lib"
+authors = ["Agnij Dutta"]
+compiler_version = ">=1.0.0"
+
+[dependencies]

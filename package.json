@@ -1,0 +1,21 @@
+{
+  "name": "zkexpense",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "scripts/build.sh",
+    "test": "node --test test/*.test.mjs && cd circuits/lib && nargo test && cd ../../contracts && forge test",
+    "bench": "node scripts/bench.mjs",
+    "sample": "node scripts/gen-sample.mjs"
+  },
+  "author": "Agnij Dutta",
+  "license": "MIT",
+  "description": "Verifiable expense reports for AI agents: one ZK proof over a month of x402 payments",
+  "dependencies": {
+    "@zkpassport/poseidon2": "^0.6.2"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "zkexpense": "cli/zkexpense.mjs"
+  }
+}

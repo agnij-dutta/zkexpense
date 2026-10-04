@@ -1,0 +1,54 @@
+{
+  "name": "approved-vendors-2026Q3",
+  "salt": "0x05284ac518db8edfa2946242fc06310e29b60d0a39f7b812edf5b522c58092",
+  "vendors": [
+    {
+      "name": "weather-api",
+      "address": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62"
+    },
+    {
+      "name": "llm-inference",
+      "address": "0x9024b407c0ca2369d78b6cc46282757a2d910ec2"
+    },
+    {
+      "name": "web-search",
+      "address": "0xc61dfa2aa45526336d3c8a7cb56cfc4d7e6c349a"
+    },
+    {
+      "name": "news-feed",
+      "address": "0x5ce24ac7f4cf1ca6a798461e8034897218cf3fa0"
+    },
+    {
+      "name": "geo-coder",
+      "address": "0x6ffb6f9b66d8351fcde5bfb634af7aebacf4d2ff"
+    },
+    {
+      "name": "pdf-extract",
+      "address": "0x60c227711945c431d7805c732148b40a26150500"
+    },
+    {
+      "name": "price-oracle",
+      "address": "0x47926bc610827b90208186a29b3168017fc382e8"
+    },
+    {
+      "name": "image-gen",
+      "address": "0x03b27ca92281c5345abe726267b1b4ebbf958023"
+    },
+    {
+      "name": "vector-db",
+      "address": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c"
+    },
+    {
+      "name": "scraper-proxy",
+      "address": "0xc66f6810f1e7aee225fc1c27f5b28b7c4d5058d6"
+    },
+    {
+      "name": "translation",
+      "address": "0x6c946b0dff5f08ab481819f3d4b63435df9585d3"
+    },
+    {
+      "name": "sec-filings",
+      "address": "0x21047aea49549ac2f63013cf2a2bf9bb42a6a7d5"
+    }
+  ]
+}

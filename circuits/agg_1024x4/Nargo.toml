@@ -1,0 +1,7 @@
+[package]
+name = "agg_1024x4"
+type = "bin"
+authors = ["Agnij Dutta"]
+
+[dependencies]
+zkexpense_lib = { path = "../lib" }

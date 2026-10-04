@@ -1,0 +1,506 @@
+{
+  "agentId": "agent:research-bot-7",
+  "period": "2026-09",
+  "payments": [
+    {
+      "transaction": "0xfd1d5dbf4c73cfe61d140e51df0f18a4ed0975b6085938d6c74bfea158c04fc8",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "2532",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788243123,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0xf8bc2e937f89ddcd25c1dae783aa5867989092b3c834225fff2e83f3e6eb6bcb",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x03b27ca92281c5345abe726267b1b4ebbf958023",
+      "amount": "341043",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788247949,
+      "resource": "https://image-gen.example/x402"
+    },
+    {
+      "transaction": "0x5d6eb03de15e6730bf64e7fd27dd08bada88c99380319622cc8c5ea1bc1fdaef",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x9024b407c0ca2369d78b6cc46282757a2d910ec2",
+      "amount": "171395",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788262284,
+      "resource": "https://llm-inference.example/x402"
+    },
+    {
+      "transaction": "0x606b7a588fb01f9553ad3929a5319f0c74aa657192c7e6e73453113b4012b88a",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "17522",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788273800,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x03ec51381da99cc09d5f6413a348c72747b04777a6661afab760041fc51874a5",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "4232",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788303653,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0x781ec6a8158c284ff70533487ca736f48ddec921716f6fdfb944e061d66ef77d",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "2936",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788373118,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0xa92473df9c60195a368b1855bea4a81812272c2ef78ea3ebc373b40bbee3f695",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "1046",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788375304,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0xaa283069d87d83ece0cf34bd87c07720a12cfe8a5d81636cc67c05da75c10b9f",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc61dfa2aa45526336d3c8a7cb56cfc4d7e6c349a",
+      "amount": "10925",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788386835,
+      "resource": "https://web-search.example/x402"
+    },
+    {
+      "transaction": "0x3a1b78f35d8a5bb8e7a4ab2ab1b08c3308fb8fa81060e32715528eb56a14a5a1",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "58161",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788396486,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x9b19af461ded69c2929662092ba4e87f4c1408f2df567af594caa9eda883beb1",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc61dfa2aa45526336d3c8a7cb56cfc4d7e6c349a",
+      "amount": "9236",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788410545,
+      "resource": "https://web-search.example/x402"
+    },
+    {
+      "transaction": "0xc08cdf76897830ed69c95b31192fdd1a7f46be2ae29198284947d96f49fb084a",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc61dfa2aa45526336d3c8a7cb56cfc4d7e6c349a",
+      "amount": "6109",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788454416,
+      "resource": "https://web-search.example/x402"
+    },
+    {
+      "transaction": "0x1e60bc76ae54165e904862c4181855d6a89dfcc87a10da698b86b7e4120c977b",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "12421",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788498123,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0xfe80a3ddd15ef66525ffa9ce0dded37db64d6b11a916dd94a932d7270755082a",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x21047aea49549ac2f63013cf2a2bf9bb42a6a7d5",
+      "amount": "56767",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788529633,
+      "resource": "https://sec-filings.example/x402"
+    },
+    {
+      "transaction": "0x4b4d9d8941388e4a581263c3db472f54eaf91c5db90b53cfec90d72982316b29",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6ffb6f9b66d8351fcde5bfb634af7aebacf4d2ff",
+      "amount": "1763",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788552072,
+      "resource": "https://geo-coder.example/x402"
+    },
+    {
+      "transaction": "0x6a2c6a65602c3fefe5f60ff120f2c75dae218f5aa89cdad7cb5669f7dc6dfe1e",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x03b27ca92281c5345abe726267b1b4ebbf958023",
+      "amount": "178638",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788598228,
+      "resource": "https://image-gen.example/x402"
+    },
+    {
+      "transaction": "0xdd6d8019ca0ca42e3e371899cc9d680894872eb2f044485857991a0c43238fc3",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "12346",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788611228,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x5fe8f883f5ffff9717758c581e2dfc14fa3d95d670fe7dfb7984b1a673b22760",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "18710",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788665627,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x91ae7dee9e6eb1273980208d821c2d1969d4828a653aa351dc7e777010eadcb6",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "1007",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788776659,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0xde256e0090750bf36c0d3b7b05610e93637fec74922a743c291af2e923afc2e4",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "1820",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788814875,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0x4a6550491e85745a8deca3a96e5dc1f081e8bb6d64f70bb06270c6855ea363a2",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6c946b0dff5f08ab481819f3d4b63435df9585d3",
+      "amount": "25336",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788847400,
+      "resource": "https://translation.example/x402"
+    },
+    {
+      "transaction": "0x96b55a55d0ee059937b602464f578a73f170eaae969c852cb550e238df90301b",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "2888",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788849202,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0xc1862aeb82e088111e9ed2944a354d0b91a1ea41a84529685c34831a130748ee",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "1106",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788852086,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0x413e4245c88e0c722b28335bf24763627878c6bbef7d2b8af67f00ce5868fdf0",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "1903",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788906433,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0x73732cd442289b0079a6377a263cdabe1db8624889eac694d51fc2589aace25f",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x03b27ca92281c5345abe726267b1b4ebbf958023",
+      "amount": "134180",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1788952146,
+      "resource": "https://image-gen.example/x402"
+    },
+    {
+      "transaction": "0x8440534c0cd4869fdfb7dc6d3af4f8975f9fd4fe1fb79c15eed3cac201e3124f",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6c946b0dff5f08ab481819f3d4b63435df9585d3",
+      "amount": "2050",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789132361,
+      "resource": "https://translation.example/x402"
+    },
+    {
+      "transaction": "0x3191029b81d928fa9af39af1be26f6c91ccea42912ddfbaf24894314ab012b83",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x9024b407c0ca2369d78b6cc46282757a2d910ec2",
+      "amount": "22067",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789184737,
+      "resource": "https://llm-inference.example/x402"
+    },
+    {
+      "transaction": "0xf12663308d3e44709c8444b2cd0a80e5f49e00855965db77a48f7e3570548a89",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "1471",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789255569,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0xcc1ffc29b5a5727a7d697db6393f023b210d026dabd392dd847bd2486daf9444",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "1064",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789313499,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0x0281c04b100b1339b90bed67d7bf3c4869c73e53e81e0f2c055a06cda8c9f5fe",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x47926bc610827b90208186a29b3168017fc382e8",
+      "amount": "2091",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789315775,
+      "resource": "https://price-oracle.example/x402"
+    },
+    {
+      "transaction": "0x8775f5a639f9355113dc8d661514290b812dc122661fcc3369cd5799a781d42a",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x765ad16f20cb792a4dbdbc10113a9e6a2c450f62",
+      "amount": "2136",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789330786,
+      "resource": "https://weather-api.example/x402"
+    },
+    {
+      "transaction": "0xced90cb507a5a01e6ab3aad6475b11547ea08785bdc75a2e87c46fe7b87c5096",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "10001",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789418663,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x9984869eb8c3e9b9102f35dd082614fa6cdf1cdbd80bedafe261b0a7d649b354",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "23818",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789472564,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x8735cda5c88e86784c15c7dc2c40a6cd5dc80a08279460c5210e79b343b3b2b9",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc66f6810f1e7aee225fc1c27f5b28b7c4d5058d6",
+      "amount": "17259",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789560132,
+      "resource": "https://scraper-proxy.example/x402"
+    },
+    {
+      "transaction": "0x1e8566fce819524e009eff4553eed82e172a7141cf20e75cf5d1588fd6780f10",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6c946b0dff5f08ab481819f3d4b63435df9585d3",
+      "amount": "3596",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789625300,
+      "resource": "https://translation.example/x402"
+    },
+    {
+      "transaction": "0x78448404d9250d68df4bbbd6e59904ddb6d835a5065857964343810234d6c359",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc66f6810f1e7aee225fc1c27f5b28b7c4d5058d6",
+      "amount": "26435",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789647917,
+      "resource": "https://scraper-proxy.example/x402"
+    },
+    {
+      "transaction": "0xbaffaf0300a92d554219f4aee5be8b22524fe8daedc33a31623c5d929acc392e",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6ffb6f9b66d8351fcde5bfb634af7aebacf4d2ff",
+      "amount": "4357",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789655189,
+      "resource": "https://geo-coder.example/x402"
+    },
+    {
+      "transaction": "0x4007c4a4ad36ce2141e02493be49b2a810c62423797ec52155092d8c282711f0",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x6c946b0dff5f08ab481819f3d4b63435df9585d3",
+      "amount": "57672",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789973519,
+      "resource": "https://translation.example/x402"
+    },
+    {
+      "transaction": "0xad90945a4b6eabb085eaa0640d20e4ae83dac62534aeae97e23df65676aff965",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x5ce24ac7f4cf1ca6a798461e8034897218cf3fa0",
+      "amount": "5202",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1789978675,
+      "resource": "https://news-feed.example/x402"
+    },
+    {
+      "transaction": "0xe7047ea066aed119b8c56c286d716ef99dc7dc7408e63351d8a3cb17db601089",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x5ce24ac7f4cf1ca6a798461e8034897218cf3fa0",
+      "amount": "28257",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790053107,
+      "resource": "https://news-feed.example/x402"
+    },
+    {
+      "transaction": "0xa281dbdf4ddade290342e014e3033f183f2704b0525a5c82c12eec05eabd6ea3",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "10380",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790137232,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0xbc7c041ba32db6bc17b6b2043acf925aa28b41dee1cbe0c05fee734932d94083",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x9024b407c0ca2369d78b6cc46282757a2d910ec2",
+      "amount": "373434",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790137534,
+      "resource": "https://llm-inference.example/x402"
+    },
+    {
+      "transaction": "0xa30561ce51ffd0ebaac8a775ab6f2e027fc5fb18b40a2562644ce1055bc0ff76",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x03b27ca92281c5345abe726267b1b4ebbf958023",
+      "amount": "41407",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790342845,
+      "resource": "https://image-gen.example/x402"
+    },
+    {
+      "transaction": "0x63d6696af809e0247d49ebdbc0d468f91859286837a1654fc310f9d0b25b5781",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x9024b407c0ca2369d78b6cc46282757a2d910ec2",
+      "amount": "82964",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790352606,
+      "resource": "https://llm-inference.example/x402"
+    },
+    {
+      "transaction": "0xe921ef389f86c460ab252369e93409d46ebd9758dcb049c20b32ab70acb4ad58",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "31788",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790377142,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x8a76bf0529d162f519a22f8e61827104650bfe75f5f529ef81400e1bf8ff0a01",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xc61dfa2aa45526336d3c8a7cb56cfc4d7e6c349a",
+      "amount": "12244",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790589670,
+      "resource": "https://web-search.example/x402"
+    },
+    {
+      "transaction": "0xa2edc9cf922a87bddac3542c226feefdd5839a7ae025bf589c935b1a6faee17e",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x60c227711945c431d7805c732148b40a26150500",
+      "amount": "83641",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790594007,
+      "resource": "https://pdf-extract.example/x402"
+    },
+    {
+      "transaction": "0x5f79e5475d05efaf418bc2065842cf853d9eb41697a7891835af1e7c462dfb30",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x5ce24ac7f4cf1ca6a798461e8034897218cf3fa0",
+      "amount": "26027",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790676703,
+      "resource": "https://news-feed.example/x402"
+    },
+    {
+      "transaction": "0x01104cef63d8e7e6f2cb4d43fa52acc841e9551b5e65475678bacba623a1a908",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x21047aea49549ac2f63013cf2a2bf9bb42a6a7d5",
+      "amount": "50060",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790758711,
+      "resource": "https://sec-filings.example/x402"
+    },
+    {
+      "transaction": "0x649be8d54e2640077df105a458467dd4d9bf39ef0c6a235aeb575c0021c3f646",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0xe853c3fb47ce822c036f247f89a00a68b7af9c9c",
+      "amount": "10398",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790784141,
+      "resource": "https://vector-db.example/x402"
+    },
+    {
+      "transaction": "0xf6fe2bc1feecd1e7e7f01e4c5dd790cd640f8fe7d8b1ab6f83c3d5a3836d20e1",
+      "payer": "0x87f83869ae83ca0bd6f1cb47669e2f58ee14c50e",
+      "payTo": "0x5ce24ac7f4cf1ca6a798461e8034897218cf3fa0",
+      "amount": "6089",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "network": "base",
+      "timestamp": 1790806287,
+      "resource": "https://news-feed.example/x402"
+    }
+  ]
+}
