@@ -19,7 +19,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
+      - run: npm run lint:ts # nargo fmt and forge fmt run in their own jobs
       - run: npm run typecheck
       - run: npm run build
 
